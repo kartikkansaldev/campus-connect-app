@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: true, executablePath: 'C:/Users/kinsh/.cache/puppeteer/chrome/win64-150.0.7871.24/chrome-win64/chrome.exe' });
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
   

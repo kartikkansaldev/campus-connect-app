@@ -29,7 +29,7 @@ export default function Navbar() {
             </div>
             <div className="leading-none">
               <div className="text-lg font-extrabold tracking-tight" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em', color: 'var(--color-text)' }}>Campus</div>
-              <div className="text-[10px] font-semibold tracking-[1.5px] uppercase" style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Connect</div>
+              <div className="text-xs font-semibold tracking-[1.5px] uppercase" style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Connect</div>
             </div>
           </Link>
 
@@ -63,11 +63,11 @@ export default function Navbar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-3 py-1.5 rounded-full text-xs xl:text-sm transition-all duration-150 whitespace-nowrap`}
+                  className={`px-3 py-1.5 rounded-full text-sm xl:text-base transition-all duration-150 whitespace-nowrap`}
                   style={{
                     fontFamily: 'var(--font-mono)',
                     ...(isActive
-                      ? { background: 'var(--color-border)', color: '#fff', textTransform: 'uppercase', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.8px' }
+                      ? { background: 'var(--color-border)', color: '#fff', textTransform: 'uppercase', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '1px' }
                       : { color: 'var(--color-text-secondary)', fontWeight: 600 }
                     ),
                   }}

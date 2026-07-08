@@ -5,33 +5,45 @@
   --color-bg: #F7F3EB;
   --color-card: #F9F6EF;
   --color-card-inner: #F0ECE2;
-  --color-text: #1C2331;
-  --color-text-secondary: #5A6270;
-  --color-text-muted: #8B9099;
+  --color-text: #0F172A;
+  --color-text-secondary: #334155;
+  --color-text-muted: #475569;
   --color-accent: #C85A2C;
   --color-accent-hover: #B04E26;
-  --color-border: #2C3038;
-  --color-border-light: #D6D0C4;
-  --color-green: #4A7C59;
+  --color-border: #1E293B;
+  --color-border-light: #CBD5E1;
+  --color-green: #3F6212;
   --color-green-bg: #E3EDDF;
-  --color-orange: #C07A3A;
+  --color-orange: #9A3412;
   --color-orange-bg: #F2E8D8;
-  --color-red: #A63D2F;
+  --color-red: #991B1B;
   --color-red-bg: #F0DDD8;
-  --color-olive: #6B7F4A;
+  --color-olive: #4D7C0F;
   --color-beige: #D4C9B0;
-  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  --font-body: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
-  --font-mono: 'Space Grotesk', sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 /* ===== Base ===== */
 body {
   font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
   background-color: var(--color-bg);
   color: var(--color-text);
   position: relative;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 /* Paper grain texture overlay */
@@ -50,13 +62,6 @@ body::before {
 body > #root {
   position: relative;
   z-index: 1;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
 }
 
 /* ===== Leaflet map fix ===== */

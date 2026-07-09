@@ -7,24 +7,6 @@ const CATEGORIES = [
   'Lost & Found', 'Memes'
 ];
 
-const CATEGORY_COLORS = {
-  'Coding':       { bg: '#EDE9FE', text: '#5B21B6', border: '#C4B5FD' },
-  'Academics':    { bg: '#DBEAFE', text: '#1D4ED8', border: '#BFDBFE' },
-  'Lost & Found': { bg: '#FEF3C7', text: '#92400E', border: '#FDE68A' },
-  'Hostel':       { bg: '#FFE4E6', text: '#9F1239', border: '#FECDD3' },
-  'Clubs':        { bg: '#D1FAE5', text: '#065F46', border: '#A7F3D0' },
-  'Placements':   { bg: '#E0F2FE', text: '#075985', border: '#BAE6FD' },
-  'Sports':       { bg: '#FEF9C3', text: '#713F12', border: '#FEF08A' },
-  'Events':       { bg: '#F3E8FF', text: '#6B21A8', border: '#E9D5FF' },
-  'Buy & Sell':   { bg: '#ECFDF5', text: '#064E3B', border: '#A7F3D0' },
-  'Memes':        { bg: '#FFF7ED', text: '#9A3412', border: '#FED7AA' },
-  'Freshers':     { bg: '#F0FDF4', text: '#166534', border: '#BBF7D0' },
-  'General':      { bg: '#F1F5F9', text: '#334155', border: '#CBD5E1' },
-};
-
-const SHADOW_3D = '3px 3px 0px 0px var(--color-border)';
-const SHADOW_3D_SM = '2px 2px 0px 0px var(--color-border)';
-
 function timeAgo(dateStr) {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
   if (diff < 60) return `${Math.floor(diff)}s ago`;
@@ -67,8 +49,6 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
           (msg.sender === currentUser.name && msg.recipient === targetUser) ||
           (msg.sender === targetUser && msg.recipient === currentUser.name)
         ) {
-          // Only add incoming messages from Realtime to avoid duplicates 
-          // (our own messages are added locally below)
           if (msg.sender !== currentUser.name) {
             setMessages(prev => [...prev, msg]);
             fireNotification(`New DM from ${msg.sender}`, msg.text);
@@ -81,7 +61,6 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
   }, [targetUser, currentUser.name]);
 
   useEffect(() => {
-    // Auto-scroll to bottom
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -102,9 +81,8 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
     const text = newMessage.trim();
     if (!text) return;
     
-    // 1. Instantly update UI (Optimistic Update)
     const optimisticMsg = { 
-      id: Date.now(), // temporary ID
+      id: Date.now(),
       sender: currentUser.name, 
       recipient: targetUser, 
       text,
@@ -114,33 +92,19 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
     setNewMessage('');
     setMessages(prev => [...prev, optimisticMsg]);
     
-    // 2. Send to database in background
     const msgToInsert = { sender: currentUser.name, recipient: targetUser, text };
     const { data } = await supabase.from('community_messages').insert([msgToInsert]).select().single();
     
-    // 3. (Optional) Replace temp message with real DB message, though visually identical
     if (data) {
       setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data : m));
     }
   }
 
   return (
-    <div 
-      className="fixed bottom-6 right-6 w-80 sm:w-96 rounded-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5"
-      style={{ 
-        height: '450px', 
-        background: 'var(--color-card)', 
-        border: '2px solid var(--color-border)', 
-        boxShadow: '6px 6px 0px 0px var(--color-border)' 
-      }}
-    >
-      {/* Header */}
-      <div 
-        className="px-4 py-3 flex items-center justify-between" 
-        style={{ background: 'var(--color-accent)', borderBottom: '2px solid var(--color-border)' }}
-      >
+    <div className="neo-card-static fixed bottom-6 right-6 w-80 sm:w-96 flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5" style={{ height: '450px' }}>
+      <div className="px-4 py-3 flex items-center justify-between border-b-2 border-[var(--color-border)]" style={{ background: 'var(--color-accent)' }}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-[var(--color-accent)] text-xs shrink-0" style={{ border: '2px solid var(--color-border)' }}>
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-[var(--color-accent)] text-xs shrink-0 border-2 border-[var(--color-border)]">
             {targetUser.substring(0, 2).toUpperCase()}
           </div>
           <span className="font-bold text-white text-sm">{targetUser}</span>
@@ -150,8 +114,7 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
         </button>
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ background: 'var(--color-card-inner)' }}>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--color-bg)]">
         {loading ? (
           <div className="text-center text-xs text-[var(--color-text-muted)] mt-4">Loading messages...</div>
         ) : messages.length === 0 ? (
@@ -162,11 +125,10 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
             return (
               <div key={m.id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div 
-                  className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${isMe ? 'text-white' : 'text-[var(--color-text)]'}`}
+                  className={`max-w-[75%] px-3 py-2 rounded-xl text-sm border-[1.5px] border-[var(--color-border)] ${isMe ? 'text-white' : 'text-[var(--color-text)]'}`}
                   style={{
                     background: isMe ? 'var(--color-accent)' : 'var(--color-card)',
-                    border: '1.5px solid var(--color-border)',
-                    boxShadow: SHADOW_3D_SM,
+                    boxShadow: '2px 2px 0px 0px var(--color-border)',
                     borderBottomRightRadius: isMe ? '0px' : '0.75rem',
                     borderBottomLeftRadius: !isMe ? '0px' : '0.75rem',
                   }}
@@ -180,8 +142,7 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <form onSubmit={handleSendMessage} className="p-3 bg-[var(--color-card)]" style={{ borderTop: '2px solid var(--color-border)' }}>
+      <form onSubmit={handleSendMessage} className="p-3 bg-[var(--color-card)] border-t-2 border-[var(--color-border)]">
         <div className="flex items-center gap-2">
           <input 
             type="text" 
@@ -189,14 +150,13 @@ function FloatingChatWindow({ targetUser, currentUser, onClose }) {
             onChange={e => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             autoFocus
-            className="flex-1 bg-[var(--color-card-inner)] rounded-xl px-3 py-2 outline-none text-sm font-medium placeholder:text-[var(--color-text-muted)] text-[var(--color-text)]"
-            style={{ border: '1.5px solid var(--color-border-light)' }}
+            className="flex-1 bg-[var(--color-bg)] border-[1.5px] border-[var(--color-border-light)] rounded-xl px-3 py-2 outline-none text-sm font-medium placeholder:text-[var(--color-text-muted)] text-[var(--color-text)]"
           />
           <button 
             type="submit" 
             disabled={!newMessage.trim()}
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white disabled:opacity-50 shrink-0"
-            style={{ background: 'var(--color-accent)', border: '1.5px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white disabled:opacity-50 shrink-0 border-[1.5px] border-[var(--color-border)] shadow-[2px_2px_0px_0px_var(--color-border)]"
+            style={{ background: 'var(--color-accent)' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -219,7 +179,6 @@ function FloatingInboxWindow({ currentUser, onOpenChat, onClose }) {
 
   async function fetchInbox() {
     setLoading(true);
-    // Fetch all messages where user is sender or recipient
     const { data } = await supabase
       .from('community_messages')
       .select('*')
@@ -227,7 +186,6 @@ function FloatingInboxWindow({ currentUser, onOpenChat, onClose }) {
       .order('created_at', { ascending: false });
 
     if (data) {
-      // Group by the *other* user
       const uniqueChats = new Map();
       data.forEach(msg => {
         const otherPerson = msg.sender === currentUser.name ? msg.recipient : msg.sender;
@@ -236,7 +194,7 @@ function FloatingInboxWindow({ currentUser, onOpenChat, onClose }) {
             name: otherPerson,
             lastMessage: msg.text,
             time: msg.created_at,
-            isUnread: msg.recipient === currentUser.name // Simplistic unread flag
+            isUnread: msg.recipient === currentUser.name
           });
         }
       });
@@ -246,18 +204,15 @@ function FloatingInboxWindow({ currentUser, onOpenChat, onClose }) {
   }
 
   return (
-    <div 
-      className="fixed bottom-6 right-6 w-80 sm:w-96 rounded-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5"
-      style={{ height: '450px', background: 'var(--color-card)', border: '2px solid var(--color-border)', boxShadow: '6px 6px 0px 0px var(--color-border)' }}
-    >
-      <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--color-card)', borderBottom: '2px solid var(--color-border)' }}>
+    <div className="neo-card-static fixed bottom-6 right-6 w-80 sm:w-96 flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-5" style={{ height: '450px' }}>
+      <div className="px-4 py-3 flex items-center justify-between border-b-2 border-[var(--color-border)] bg-[var(--color-card)]">
         <span className="font-extrabold text-[var(--color-text)] text-lg">Inbox</span>
         <button onClick={onClose} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ background: 'var(--color-card-inner)' }}>
+      <div className="flex-1 overflow-y-auto bg-[var(--color-bg)]">
         {loading ? (
           <div className="text-center text-xs text-[var(--color-text-muted)] mt-8">Loading conversations...</div>
         ) : conversations.length === 0 ? (
@@ -268,15 +223,14 @@ function FloatingInboxWindow({ currentUser, onOpenChat, onClose }) {
               <button 
                 key={chat.name}
                 onClick={() => onOpenChat(chat.name)}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-card)] transition-colors text-left"
-                style={{ borderBottom: '1px solid var(--color-border-light)' }}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-card)] transition-colors text-left border-b border-[var(--color-border-light)]"
               >
-                <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-sm shrink-0" style={{ background: 'var(--color-accent)', border: '2px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-sm shrink-0 border-2 border-[var(--color-border)] shadow-[2px_2px_0px_0px_var(--color-border)]" style={{ background: 'var(--color-accent)' }}>
                   {chat.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-0.5">
-                    <span className={`font-bold text-sm text-[var(--color-text)] truncate`}>{chat.name}</span>
+                    <span className="font-bold text-sm text-[var(--color-text)] truncate">{chat.name}</span>
                     <span className="text-[10px] font-mono text-[var(--color-text-muted)] whitespace-nowrap ml-2">{timeAgo(chat.time)}</span>
                   </div>
                   <p className="text-xs text-[var(--color-text-secondary)] truncate">
@@ -308,7 +262,6 @@ function PostCard({ post, currentUser, onOpenChat }) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const shareMenuRef = useRef(null);
 
-  // Close share menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (shareMenuRef.current && !shareMenuRef.current.contains(e.target)) {
@@ -319,9 +272,7 @@ function PostCard({ post, currentUser, onOpenChat }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   const commentInputRef = useRef(null);
-  const colors = CATEGORY_COLORS[post.category] || CATEGORY_COLORS['General'];
 
-  // Fetch the REAL comment count on mount
   useEffect(() => {
     supabase
       .from('community_comments')
@@ -335,7 +286,6 @@ function PostCard({ post, currentUser, onOpenChat }) {
       });
   }, [post.id, post.comments_count]);
 
-  // Supabase Realtime: listen for new comments on THIS post
   useEffect(() => {
     const channel = supabase
       .channel(`comments-post-${post.id}`)
@@ -360,7 +310,6 @@ function PostCard({ post, currentUser, onOpenChat }) {
     return () => supabase.removeChannel(channel);
   }, [post.id, currentUser.name, commentsLoaded]);
 
-  // Supabase Realtime: listen for like count updates on THIS post
   useEffect(() => {
     const prevLikes = { count: likesCount };
     const channel = supabase
@@ -424,7 +373,6 @@ function PostCard({ post, currentUser, onOpenChat }) {
     if (!text || submitting) return;
     setSubmitting(true);
     
-    // 1. Instantly update UI (Optimistic Update)
     const optimisticComment = { 
       id: Date.now(), 
       post_id: post.id, 
@@ -438,12 +386,10 @@ function PostCard({ post, currentUser, onOpenChat }) {
     const newCount = (commentsCount ?? 0) + 1;
     setCommentsCount(newCount);
     
-    // 2. Send to DB in background
     const commentToInsert = { post_id: post.id, author: currentUser.name, initials: currentUser.initials, text };
     const { data } = await supabase.from('community_comments').insert([commentToInsert]).select().single();
     
     if (data) {
-      // Replace temp with real
       setComments(prev => prev.map(c => c.id === optimisticComment.id ? data : c));
       await supabase.from('community_posts').update({ comments_count: newCount }).eq('id', post.id);
     }
@@ -482,89 +428,81 @@ function PostCard({ post, currentUser, onOpenChat }) {
   const isMe = post.author === currentUser.name;
 
   return (
-    <div className="rounded-2xl bg-[var(--color-card)] overflow-hidden" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D }}>
-      {/* Post Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3">
+    <div className="neo-card-static bg-white p-5">
+      <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0" style={{ background: 'var(--color-border)', boxShadow: SHADOW_3D_SM }}>
+          <div className="w-10 h-10 rounded-full bg-[var(--color-border)] text-white flex items-center justify-center font-bold text-sm">
             {post.initials}
           </div>
           <div>
-            <p className="font-bold text-sm text-[var(--color-text)]">{post.author}</p>
-            <p className="text-xs text-[var(--color-text-muted)] font-mono">{timeAgo(post.created_at)}</p>
+            <h4 className="font-bold text-sm">{post.author}</h4>
+            <p className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-mono">{timeAgo(post.created_at)}</p>
           </div>
         </div>
-        <span className="px-3 py-1 rounded-lg text-xs font-bold" style={{ background: colors.bg, color: colors.text, border: `1.5px solid ${colors.border}`, boxShadow: SHADOW_3D_SM }}>
-          #{post.category}
+        <span className="px-2.5 py-1 bg-[var(--color-card)] rounded border border-[var(--color-border-light)] text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
+          {post.category}
         </span>
       </div>
 
-      {/* Post Content */}
-      <p className="px-5 pb-4 text-sm leading-relaxed text-[var(--color-text)]">{post.content}</p>
+      <p className="text-sm leading-relaxed text-[var(--color-text)] mb-4">{post.content}</p>
 
-      {/* Action Bar */}
-      <div className="flex items-center gap-1 px-4 py-2.5" style={{ borderTop: '1.5px solid var(--color-border-light)' }}>
-        <button onClick={handleLike} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 group" style={{ color: liked ? '#E11D48' : 'var(--color-text-secondary)', background: liked ? '#FFF1F2' : 'transparent', border: liked ? '1.5px solid #FECDD3' : '1.5px solid transparent', boxShadow: liked ? SHADOW_3D_SM : 'none' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? '#E11D48' : 'none'} stroke={liked ? '#E11D48' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-150 group-hover:scale-110">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-          <span>{likesCount}</span>
+      <div className="flex items-center gap-6 pt-3 border-t border-[var(--color-border-light)]">
+        <button onClick={handleLike} className={`flex items-center gap-2 text-xs font-bold transition-colors cursor-pointer ${liked ? 'text-[#E11D48]' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]'}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? '#E11D48' : 'none'} stroke="currentColor" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          {likesCount}
         </button>
 
-        <button onClick={handleToggleComments} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150" style={{ color: showComments ? '#2563EB' : 'var(--color-text-secondary)', background: showComments ? '#EFF6FF' : 'transparent', border: showComments ? '1.5px solid #BFDBFE' : '1.5px solid transparent', boxShadow: showComments ? SHADOW_3D_SM : 'none' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <button onClick={handleToggleComments} className={`flex items-center gap-2 text-xs font-bold transition-colors cursor-pointer ${showComments ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]'}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
           </svg>
-          <span>{displayCount} {displayCount === 1 ? 'Comment' : 'Comments'}</span>
+          {displayCount} Comments
         </button>
 
-        {/* Message Author (DM) Button */}
         {!isMe && (
           <button 
             onClick={() => onOpenChat(post.author)} 
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 text-[var(--color-accent)] hover:bg-[var(--color-card-inner)]"
-            style={{ border: '1.5px solid transparent' }}
+            className="flex items-center gap-2 text-xs font-bold text-[var(--color-accent)] hover:opacity-70 transition-opacity cursor-pointer"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
             </svg>
             <span className="hidden sm:inline">Message</span>
           </button>
         )}
 
         <div className="relative ml-auto" ref={shareMenuRef}>
-          <button onClick={handleToggleShare} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 text-[var(--color-text-secondary)]" style={{ background: showShareMenu ? 'var(--color-card-inner)' : 'transparent', border: showShareMenu ? '1.5px solid var(--color-border-light)' : '1.5px solid transparent', boxShadow: showShareMenu ? SHADOW_3D_SM : 'none' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <button onClick={handleToggleShare} className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors cursor-pointer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
-            <span>Share</span>
+            <span className="hidden sm:inline">Share</span>
           </button>
         </div>
 
-        {/* Share Modal */}
         {showShareMenu && (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setShowShareMenu(false)}>
-            <div className="rounded-2xl overflow-hidden w-full max-w-sm" style={{ background: 'var(--color-card)', border: '2px solid var(--color-border)', boxShadow: '6px 6px 0px 0px var(--color-border)' }} onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1.5px solid var(--color-border-light)' }}>
+            <div className="neo-card-static bg-white overflow-hidden w-full max-w-sm" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-3 border-b-2 border-[var(--color-border-light)]">
                 <p className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-muted)] font-mono">Share via</p>
                 <button onClick={() => setShowShareMenu(false)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
-              <div className="px-5 py-3 text-xs text-[var(--color-text-secondary)] font-medium line-clamp-2" style={{ borderBottom: '1.5px solid var(--color-border-light)', background: 'var(--color-card-inner)' }}>
+              <div className="px-5 py-3 text-xs text-[var(--color-text-secondary)] font-medium line-clamp-2 bg-[var(--color-bg)] border-b-2 border-[var(--color-border-light)]">
                 "{post.content.substring(0, 80)}{post.content.length > 80 ? '…' : ''}"
               </div>
               <div className="p-3 grid grid-cols-2 gap-2">
                 {SHARE_PLATFORMS.map(platform => (
-                  <a key={platform.name} href={platform.url} target="_blank" rel="noopener noreferrer" onClick={() => setShowShareMenu(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity" style={{ background: platform.color, color: 'white', boxShadow: SHADOW_3D_SM }}>
+                  <a key={platform.name} href={platform.url} target="_blank" rel="noopener noreferrer" onClick={() => setShowShareMenu(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity" style={{ background: platform.color, color: 'white', boxShadow: '2px 2px 0px 0px var(--color-border)' }}>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="white" className="shrink-0"><path d={platform.icon}/></svg>
                     {platform.name}
                   </a>
                 ))}
               </div>
               <div className="px-3 pb-3">
-                <button onClick={handleCopyLink} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all" style={{ background: 'var(--color-card-inner)', color: 'var(--color-text)', border: '2px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}>
+                <button onClick={handleCopyLink} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-[var(--color-card-inner)] border-2 border-[var(--color-border)] shadow-[2px_2px_0px_0px_var(--color-border)]">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                   </svg>
@@ -576,21 +514,19 @@ function PostCard({ post, currentUser, onOpenChat }) {
         )}
       </div>
 
-      {/* Inline Comments Section */}
       {showComments && (
-        <div className="px-5 py-4 space-y-3" style={{ borderTop: '1.5px solid var(--color-border-light)', background: 'var(--color-card-inner)' }}>
+        <div className="px-5 py-4 space-y-3 bg-[var(--color-bg)] border-t border-[var(--color-border-light)]">
           {comments.length === 0 && <p className="text-xs text-[var(--color-text-muted)] text-center py-2">No comments yet. Be the first!</p>}
           {comments.map(c => {
             const isCommentMine = c.author === currentUser.name;
             return (
               <div key={c.id} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0" style={{ background: 'var(--color-border)', boxShadow: '1px 1px 0px 0px var(--color-border)' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0 bg-[var(--color-border)] shadow-[1px_1px_0px_0px_var(--color-border)]">
                   {c.initials}
                 </div>
-                <div className="flex-1 bg-[var(--color-card)] rounded-xl px-3 py-2 group relative" style={{ border: '1.5px solid var(--color-border-light)', boxShadow: SHADOW_3D_SM }}>
+                <div className="flex-1 bg-white rounded-xl px-3 py-2 group relative border-[1.5px] border-[var(--color-border-light)] shadow-[2px_2px_0px_0px_var(--color-border)]">
                   <div className="flex justify-between items-start">
                     <p className="text-xs font-bold text-[var(--color-text)]">{c.author}</p>
-                    {/* DM Button on Comment (only if not mine) */}
                     {!isCommentMine && (
                       <button onClick={() => onOpenChat(c.author)} className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-accent)] hover:text-blue-700 p-1 rounded-md" title={`Message ${c.author}`}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -604,12 +540,12 @@ function PostCard({ post, currentUser, onOpenChat }) {
           })}
 
           <form onSubmit={handleSubmitComment} className="flex gap-3 items-center pt-1">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0" style={{ background: 'var(--color-accent)', boxShadow: SHADOW_3D_SM }}>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0 bg-[var(--color-accent)] shadow-[2px_2px_0px_0px_var(--color-border)]">
               {currentUser.initials}
             </div>
-            <div className="flex-1 flex items-center gap-2 bg-[var(--color-card)] rounded-xl px-4 py-2 transition-all" style={{ border: '2px solid var(--color-border-light)', boxShadow: SHADOW_3D_SM }}>
+            <div className="flex-1 flex items-center gap-2 bg-white rounded-xl px-4 py-2 transition-all border-2 border-[var(--color-border-light)] shadow-[2px_2px_0px_0px_var(--color-border)]">
               <input ref={commentInputRef} type="text" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a comment..." className="flex-1 bg-transparent outline-none text-sm font-medium placeholder:text-[var(--color-text-muted)] text-[var(--color-text)]" />
-              <button type="submit" disabled={!newComment.trim() || submitting} className="text-[var(--color-accent)] disabled:opacity-30 transition-opacity shrink-0">
+              <button type="submit" disabled={!newComment.trim() || submitting} className="text-[var(--color-accent)] disabled:opacity-30 transition-opacity shrink-0 cursor-pointer">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
               </button>
             </div>
@@ -620,7 +556,6 @@ function PostCard({ post, currentUser, onOpenChat }) {
   );
 }
 
-// Ask for notification permission once when the page loads
 function useNotificationPermission() {
   const [permission, setPermission] = useState(Notification.permission);
   useEffect(() => {
@@ -645,7 +580,6 @@ export default function Community() {
   const [showPostForm, setShowPostForm] = useState(false);
   const [submittingPost, setSubmittingPost] = useState(false);
   
-  // DM State
   const [activeChatUser, setActiveChatUser] = useState(null);
   const [showInbox, setShowInbox] = useState(false);
 
@@ -667,7 +601,6 @@ export default function Community() {
     if (!content || submittingPost) return;
     setSubmittingPost(true);
     
-    // 1. Instantly update UI (Optimistic Update)
     const optimisticPost = {
       id: Date.now(),
       author: currentUser.name,
@@ -683,7 +616,6 @@ export default function Community() {
     setShowPostForm(false);
     setPosts(prev => [optimisticPost, ...prev]);
 
-    // 2. Send to DB in background
     const { data } = await supabase.from('community_posts').insert([{
       author: currentUser.name,
       initials: currentUser.initials,
@@ -706,32 +638,42 @@ export default function Community() {
   });
 
   return (
-    <div className="animate-in flex flex-col lg:flex-row gap-6 items-start lg:h-[calc(100vh-6rem)]">
+    <div className="animate-in flex flex-col md:flex-row gap-8 lg:h-[calc(100vh-6rem)]">
       <style>{`
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* Left Sidebar */}
-      <div className="w-full lg:w-[240px] shrink-0 lg:h-full overflow-y-auto hide-scroll pb-10">
-        <h1 className="text-2xl font-extrabold font-heading mb-5 text-[var(--color-text)]">Community</h1>
+      {/* Sidebar Navigation */}
+      <div className="w-full md:w-[260px] shrink-0 lg:h-full overflow-y-auto hide-scroll pb-10">
+        <h1 className="text-3xl font-extrabold font-heading mb-6">Community</h1>
 
-        {/* Inbox / Messages Quick Access */}
-        <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 px-1 font-mono">Messages</p>
+        {/* Search Bar */}
+        <div className="neo-card-static flex items-center px-4 py-3 gap-3 bg-[var(--color-bg)] mb-6">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search posts..." value={search} onChange={e => setSearch(e.target.value)} className="flex-1 bg-transparent outline-none text-sm font-medium placeholder:text-[var(--color-text-muted)] text-[var(--color-text)]" />
+        </div>
+
+        {/* Inbox Quick Access */}
+        <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Messages</h3>
         <button 
           onClick={() => { setShowInbox(true); setActiveChatUser(null); }}
-          className="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 mb-5 flex items-center justify-between"
-          style={{ background: 'var(--color-card)', border: '2px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}
+          className="neo-card-static w-full text-left px-4 py-2.5 mb-6 text-sm font-bold bg-[var(--color-card)] flex items-center justify-between cursor-pointer"
         >
-          <span className="font-bold text-[var(--color-text)]">📥 Open Inbox</span>
+          📥 Open Inbox
         </button>
 
-        <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 px-1 font-mono">Topics</p>
-        <div className="flex flex-col gap-2 mb-5">
-          {CATEGORIES.map(cat => {
+        {/* Topics List */}
+        <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Topics</h3>
+        <div className="flex flex-col gap-1.5 mb-5">
+          {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat;
             return (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className="text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer" style={{ background: 'var(--color-card)', color: isActive ? 'var(--color-text)' : 'var(--color-text-secondary)', border: isActive ? '2px solid var(--color-border)' : '2px solid var(--color-border-light)', fontWeight: isActive ? 700 : 500, boxShadow: isActive ? SHADOW_3D : SHADOW_3D_SM, transform: isActive ? 'translate(-1px, -1px)' : 'none' }}>
+              <button 
+                key={cat} 
+                onClick={() => setActiveCategory(cat)} 
+                className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${isActive ? 'bg-[var(--color-border)] text-white' : 'hover:bg-[var(--color-card)] text-[var(--color-text-secondary)]'}`}
+              >
                 {cat === 'All' ? '🏠 All Posts' : `# ${cat}`}
               </button>
             );
@@ -739,57 +681,49 @@ export default function Community() {
         </div>
 
         {notifPermission === 'denied' && (
-          <div className="px-3 py-2 rounded-lg text-xs font-semibold text-[#92400E] bg-[#FEF3C7]" style={{ border: '1.5px solid #FDE68A', boxShadow: SHADOW_3D_SM }}>
+          <div className="px-3 py-2 rounded-lg text-xs font-semibold text-[#92400E] bg-[#FEF3C7] border-[1.5px] border-[#FDE68A] shadow-[2px_2px_0px_0px_var(--color-border)] mt-6">
             🔕 Notifications blocked. Enable in browser settings.
           </div>
         )}
       </div>
 
       {/* Main Feed */}
-      <div className="flex-1 min-w-0 space-y-4 lg:h-full overflow-y-auto hide-scroll pb-20 pr-1">
+      <div className="flex-1 space-y-5 lg:h-full overflow-y-auto hide-scroll pb-20 pr-1">
         
-        {/* Search inside feed column now for better layout */}
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-card)]" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="text" placeholder="Search posts and people..." value={search} onChange={e => setSearch(e.target.value)} className="bg-transparent outline-none text-sm font-medium flex-1 placeholder:text-[var(--color-text-muted)] text-[var(--color-text)]" />
-        </div>
-
         {/* Post Composer */}
-        <div className="rounded-2xl bg-[var(--color-card)] overflow-hidden" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D }}>
-          {!showPostForm ? (
-            <button onClick={() => setShowPostForm(true)} className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[var(--color-card-inner)] transition-colors text-left">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0" style={{ background: 'var(--color-accent)', boxShadow: SHADOW_3D_SM }}>ME</div>
-              <span className="text-sm text-[var(--color-text-muted)] font-medium flex-1 px-4 py-2.5 bg-[var(--color-card-inner)] rounded-xl" style={{ border: '1.5px solid var(--color-border-light)', boxShadow: SHADOW_3D_SM }}>
-                What's on your mind? Ask the campus...
-              </span>
-            </button>
-          ) : (
-            <form onSubmit={handleCreatePost} className="p-5 space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white shrink-0" style={{ background: 'var(--color-accent)', boxShadow: SHADOW_3D_SM }}>ME</div>
+        {!showPostForm ? (
+          <div onClick={() => setShowPostForm(true)} className="neo-card-static p-4 bg-white flex items-center gap-4 border-2 border-dashed border-[var(--color-border-light)] hover:border-[var(--color-border)] transition-colors cursor-text">
+             <div className="w-10 h-10 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center font-bold text-sm border-2 border-[var(--color-border)] shrink-0">ME</div>
+             <p className="text-[var(--color-text-muted)] font-medium text-sm">What's on your mind? Ask the campus...</p>
+          </div>
+        ) : (
+          <div className="neo-card-static p-5 bg-white">
+            <form onSubmit={handleCreatePost} className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center font-bold text-sm border-2 border-[var(--color-border)] shrink-0">ME</div>
                 <textarea autoFocus value={newPostContent} onChange={e => setNewPostContent(e.target.value)} placeholder="What's on your mind? Ask the campus..." rows={3} className="flex-1 bg-transparent outline-none text-sm font-medium placeholder:text-[var(--color-text-muted)] resize-none text-[var(--color-text)]" />
               </div>
-              <div className="flex items-center justify-between pt-3" style={{ borderTop: '1.5px solid var(--color-border-light)' }}>
-                <select value={newPostCategory} onChange={e => setNewPostCategory(e.target.value)} className="text-sm font-semibold rounded-lg px-3 py-1.5 bg-[var(--color-card-inner)] text-[var(--color-text)] outline-none cursor-pointer" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}>
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border-light)]">
+                <select value={newPostCategory} onChange={e => setNewPostCategory(e.target.value)} className="text-sm font-semibold rounded-lg px-3 py-2 bg-[var(--color-bg)] text-[var(--color-text)] outline-none cursor-pointer border-2 border-[var(--color-border-light)]">
                   {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => { setShowPostForm(false); setNewPostContent(''); }} className="px-4 py-1.5 rounded-lg text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-card-inner)] transition-colors" style={{ border: '2px solid var(--color-border-light)', boxShadow: SHADOW_3D_SM }}>Cancel</button>
-                  <button type="submit" disabled={!newPostContent.trim() || submittingPost} className="px-5 py-1.5 rounded-lg text-sm font-bold text-white transition-all disabled:opacity-40" style={{ background: 'var(--color-accent)', border: '2px solid var(--color-border)', boxShadow: SHADOW_3D_SM }}>{submittingPost ? 'Posting...' : 'Post'}</button>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => { setShowPostForm(false); setNewPostContent(''); }} className="px-4 py-2 rounded-lg text-sm font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] transition-colors cursor-pointer">Cancel</button>
+                  <button type="submit" disabled={!newPostContent.trim() || submittingPost} className="btn-primary cursor-pointer disabled:opacity-40">{submittingPost ? 'Posting...' : 'Post'}</button>
                 </div>
               </div>
             </form>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Feed */}
         {loading ? (
-          <div className="text-center py-16 text-[var(--color-text-muted)] rounded-2xl bg-[var(--color-card)]" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D }}>
+          <div className="text-center py-16 text-[var(--color-text-muted)] neo-card-static bg-white">
             <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm font-medium">Loading feed...</p>
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="text-center py-16 text-[var(--color-text-muted)] rounded-2xl bg-[var(--color-card)]" style={{ border: '2px solid var(--color-border)', boxShadow: SHADOW_3D }}>
+          <div className="text-center py-16 text-[var(--color-text-muted)] neo-card-static bg-white">
             <p className="text-2xl mb-2">💬</p>
             <p className="font-semibold">No posts yet in this topic!</p>
             <p className="text-sm mt-1">Be the first to start the conversation.</p>
@@ -806,7 +740,6 @@ export default function Community() {
         )}
       </div>
 
-      {/* GLOBAL FLOATING CHAT / INBOX WINDOWS */}
       {showInbox && !activeChatUser && (
         <FloatingInboxWindow 
           currentUser={currentUser}

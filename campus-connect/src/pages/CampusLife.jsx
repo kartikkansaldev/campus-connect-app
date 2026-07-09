@@ -9,24 +9,39 @@ export default function CampusLife() {
   const [search, setSearch] = useState('');
   
   const [clubs, setClubs] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [eventsLoading, setEventsLoading] = useState(true);
   const [selectedClub, setSelectedClub] = useState(null);
   const currentUser = { name: 'Arjun M.' }; // Mock current user
 
   useEffect(() => {
-    const fetchClubs = async () => {
+    const fetchClubsAndEvents = async () => {
       setLoading(true);
-      const { data: supabaseClubs, error } = await supabase
+      setEventsLoading(true);
+      
+      const { data: supabaseClubs, error: clubsError } = await supabase
         .from('campus_clubs')
         .select('*')
         .order('rating', { ascending: false });
       
       if (supabaseClubs) setClubs(supabaseClubs);
-      if (error) console.error("Error fetching clubs:", error);
+      if (clubsError) console.error("Error fetching clubs:", clubsError);
+      
       setLoading(false);
+
+      const { data: supabaseEvents, error: eventsError } = await supabase
+        .from('campus_events')
+        .select('*')
+        .order('date', { ascending: true });
+        
+      if (supabaseEvents) setEvents(supabaseEvents);
+      if (eventsError) console.error("Error fetching events:", eventsError);
+      
+      setEventsLoading(false);
     };
 
-    fetchClubs();
+    fetchClubsAndEvents();
   }, []);
 
   const tabs = [
@@ -115,21 +130,47 @@ export default function CampusLife() {
 
       {activeTab === 'events' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {data.clubs.flatMap(c => c.events).map(event => (
-              <div key={event.id} className="neo-card-static p-5 flex gap-4">
-                 <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-14 h-14 rounded-xl flex flex-col items-center justify-center shrink-0 border border-[var(--color-orange)]">
-                  <span className="text-[10px] font-bold uppercase leading-none mb-1">{new Date(event.date).toLocaleString('default', { month: 'short' })}</span>
-                  <span className="text-xl font-black font-heading leading-none">{new Date(event.date).getDate()}</span>
+          {eventsLoading ? (
+            <div className="text-center py-12 text-[var(--color-text-secondary)] font-bold animate-pulse">Loading events...</div>
+          ) : events.length === 0 ? (
+            <div className="text-center py-16 neo-card-static bg-[var(--color-card)]">
+              <div className="text-5xl mb-4">📅</div>
+              <h2 className="text-2xl font-extrabold font-heading mb-2">No Upcoming Events</h2>
+              <p className="text-[var(--color-text-secondary)]">There are no upcoming events scheduled at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {events.map(event => (
+                <div key={event.id} className="neo-card-static flex flex-col overflow-hidden">
+                  {event.image_url && (
+                    <div className="w-full h-56 bg-black">
+                      <img src={event.image_url} alt={event.title} className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                  <div className="p-5 flex gap-4">
+                    <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-14 h-14 rounded-xl flex flex-col items-center justify-center shrink-0 border border-[var(--color-orange)]">
+                      <span className="text-[10px] font-bold uppercase leading-none mb-1">
+                        {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                      </span>
+                      <span className="text-xl font-black font-heading leading-none">
+                        {new Date(event.date).getDate()}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-1">{event.title}</h3>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mb-3 font-bold uppercase tracking-wider">{event.venue} • {event.time}</p>
+                      <p className="text-sm text-[var(--color-text)] whitespace-pre-line leading-relaxed mb-4">{event.description}</p>
+                      {event.link && (
+                        <a href={event.link} target="_blank" rel="noopener noreferrer" className="inline-block px-4 py-2 bg-[var(--color-text)] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
+                          Register Here →
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm mb-1">{event.title}</h3>
-                  <p className="text-[11px] text-[var(--color-text-secondary)] mb-2">{event.venue} • {event.time}</p>
-                  <p className="text-xs text-[var(--color-text-muted)] line-clamp-1">{event.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

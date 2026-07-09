@@ -63,8 +63,9 @@ export default function CampusLife() {
   });
 
   return (
-    <div className="animate-in">
-      <h1 className="text-3xl font-extrabold font-heading mb-6">Campus Life</h1>
+    <>
+      <div className="animate-in">
+        <h1 className="text-3xl font-extrabold font-heading mb-6">Campus Life</h1>
 
       {/* Tabs */}
       <div className="flex gap-3 mb-8 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
@@ -186,6 +187,7 @@ export default function CampusLife() {
           <p className="text-[var(--color-text-secondary)]">Complete campus challenges to earn badges and dining coupons.</p>
         </div>
       )}
+      </div>
 
       {selectedClub && (
         <ClubDetail club={selectedClub} onClose={() => setSelectedClub(null)} currentUser={currentUser} />
@@ -193,6 +195,6 @@ export default function CampusLife() {
       {selectedEvent && (
         <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
-    </div>
+    </>
   );
 }

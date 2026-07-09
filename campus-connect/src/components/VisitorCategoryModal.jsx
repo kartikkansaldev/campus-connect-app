@@ -69,9 +69,21 @@ export default function VisitorCategoryModal({ categoryId, onClose, onSelectPlac
                     {place.description}
                   </p>
 
-                  <div className="flex items-center justify-between text-[11px] font-mono text-[var(--color-text-muted)] uppercase tracking-wider pt-3 border-t border-[var(--color-border-light)]">
-                    <span className="flex items-center gap-1">🕐 {place.hours?.split('|')[0] || 'Open Now'}</span>
-                    <span className="text-[var(--color-text)] font-bold group-hover:underline">View Details →</span>
+                  <div className="flex items-center justify-between text-[11px] font-mono text-[var(--color-text-muted)] uppercase tracking-wider pt-3 border-t border-[var(--color-border-light)] mt-auto">
+                    <span className="flex items-center gap-1 truncate max-w-[40%]">🕐 {place.hours?.split('|')[0] || 'Open Now'}</span>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`, '_blank');
+                        }}
+                        className="bg-amber-100 text-amber-800 hover:bg-amber-200 px-2 py-1 rounded transition-colors flex items-center gap-1 border border-amber-200 cursor-pointer"
+                        title="Get Directions"
+                      >
+                        📍 Map
+                      </button>
+                      <span className="text-[var(--color-text)] font-bold group-hover:underline">Details →</span>
+                    </div>
                   </div>
                 </div>
               ))}

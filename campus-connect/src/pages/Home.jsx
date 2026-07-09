@@ -1,5 +1,29 @@
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
+
+const playClick = () => {
+  try {
+    const audio = new Audio('/click.mp3');
+    // If click.mp3 doesn't exist, this will fail silently. Alternatively we can use a synthesized beep.
+    // Let's use a very short synthesized sound for guaranteed working without assets:
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 /* ===== RICH COLORED Hand-Drawn Illustrations ===== */
 
@@ -289,10 +313,36 @@ function getNow() {
 export default function Home() {
   const { data } = useApp();
   const navigate = useNavigate();
-  const foodPlaces = data.places.filter(p => p.category === 'food').slice(0, 3);
-  const totalBuildings = data.places.filter(p => ['academic', 'other'].includes(p.category)).length;
-  const totalFood = data.places.filter(p => p.category === 'food').length;
+  
+  const [trendingPosts, setTrendingPosts] = useState([]);
+  
+  useEffect(() => {
+    async function fetchTrending() {
+      try {
+        const { data: posts, error } = await supabase
+          .from('community_posts')
+          .select('*')
+          .order('likes_count', { ascending: false })
+          .limit(3);
+        if (!error && posts) setTrendingPosts(posts);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchTrending();
+  }, []);
+
+  const foodPlaces = data.places.filter(p => p.category === 'food').slice(0, 2);
   const timeNow = getNow();
+  
+  // Real Data Fetching from AppContext
+  const upcomingEvent = data.clubs.flatMap(c => c.events).sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+  const topAnnouncement = data.announcements[0];
+
+  const handleNav = (path) => {
+    playClick();
+    navigate(path);
+  };
 
   const quickAccess = [
     { icon: '🧭', label: 'Explore', path: '/explore', bg: '#EDE5D4' },
@@ -343,13 +393,9 @@ export default function Home() {
               Real-time rush of food outlets, walking directions between buildings, {data.clubs.length} clubs to discover, and a personal assistant that actually knows the campus.
             </p>
             <div className="flex flex-wrap gap-3">
-              <button className="btn-secondary" onClick={() => navigate('/explore')}>
+              <button className="btn-secondary" onClick={() => handleNav('/explore')}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
                 <span style={{ textTransform: 'uppercase', letterSpacing: '0.8px' }}>Explore Map</span>
-              </button>
-              <button className="btn-secondary" onClick={() => navigate('/explore?cat=food')}>
-                <span style={{ fontSize: '12px', fontWeight: 700 }}>+</span>
-                Food & rush hours
               </button>
             </div>
           </div>
@@ -361,7 +407,7 @@ export default function Home() {
           {quickAccess.map((item, i) => (
             <div 
               key={i} 
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNav(item.path)}
               className="neo-card-static p-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--color-card)] transition-colors group"
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform" style={{ background: item.bg }}>
@@ -389,18 +435,14 @@ export default function Home() {
               <span>🔥</span> Trending
             </div>
             <div className="space-y-4">
-              <div className="border-b border-[var(--color-border-light)] pb-3 last:border-0">
-                <p className="font-semibold text-sm leading-tight mb-1">New Library Timings Announced for Finals Week</p>
-                <p className="text-[11px] text-[var(--color-text-muted)]">2 hours ago • Academics</p>
-              </div>
-              <div className="border-b border-[var(--color-border-light)] pb-3 last:border-0">
-                <p className="font-semibold text-sm leading-tight mb-1">Robotics Club wins Nationals!</p>
-                <p className="text-[11px] text-[var(--color-text-muted)]">5 hours ago • Clubs</p>
-              </div>
-              <div className="border-b border-[var(--color-border-light)] pb-3 last:border-0">
-                <p className="font-semibold text-sm leading-tight mb-1">Midnight Munchies offering 20% off tonight</p>
-                <p className="text-[11px] text-[var(--color-text-muted)]">8 hours ago • Food</p>
-              </div>
+              {trendingPosts.length > 0 ? trendingPosts.map((post, i) => (
+                <div key={i} className="border-b border-[var(--color-border-light)] pb-3 last:border-0 cursor-pointer group" onClick={() => handleNav('/community')}>
+                  <p className="font-semibold text-sm leading-tight mb-1 group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">{post.content}</p>
+                  <p className="text-[11px] text-[var(--color-text-muted)]">{post.likes_count} likes • {post.category}</p>
+                </div>
+              )) : (
+                <div className="text-sm text-[var(--color-text-muted)] italic">Loading trending posts...</div>
+              )}
             </div>
           </div>
 
@@ -410,18 +452,22 @@ export default function Home() {
               <span>🎉</span> Upcoming Events
             </div>
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 leading-none">
-                  <span className="text-[10px] font-bold uppercase">Oct</span>
-                  <span className="text-lg font-black font-heading">15</span>
+              {upcomingEvent ? (
+                <div className="flex items-center gap-3">
+                  <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 leading-none">
+                    <span className="text-[10px] font-bold uppercase">{new Date(upcomingEvent.date).toLocaleString('default', { month: 'short' })}</span>
+                    <span className="text-lg font-black font-heading">{new Date(upcomingEvent.date).getDate()}</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm leading-tight line-clamp-1">{upcomingEvent.title}</p>
+                    <p className="text-[11px] text-[var(--color-text-muted)] line-clamp-1">{upcomingEvent.location} • {upcomingEvent.time}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm leading-tight">Tech Symposium 2026</p>
-                  <p className="text-[11px] text-[var(--color-text-muted)]">Main Auditorium • 10:00 AM</p>
-                </div>
-              </div>
+              ) : (
+                <div className="text-sm text-[var(--color-text-muted)] italic">No upcoming events.</div>
+              )}
             </div>
-            <button onClick={() => navigate('/campus-life')} className="w-full mt-4 py-2 border-2 border-[var(--color-border)] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[var(--color-card)] transition-colors cursor-pointer">
+            <button onClick={() => handleNav('/campus-life')} className="w-full mt-4 py-2 border-2 border-[var(--color-border)] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[var(--color-card)] transition-colors cursor-pointer">
               View All Events
             </button>
           </div>
@@ -431,8 +477,14 @@ export default function Home() {
              <div className="flex items-center gap-2 mb-3 text-[var(--color-text)] font-bold text-sm uppercase tracking-wider font-mono">
               <span>📢</span> Announcements
             </div>
-            <p className="text-sm font-medium leading-relaxed mb-3">Hostel curfews extended to 11:30 PM starting next week. Please carry your ID cards.</p>
-            <p className="text-[11px] text-[var(--color-text-muted)] font-mono uppercase">By Admin • Yesterday</p>
+            {topAnnouncement ? (
+              <>
+                <p className="text-sm font-medium leading-relaxed mb-3 line-clamp-3">{topAnnouncement.text}</p>
+                <p className="text-[11px] text-[var(--color-text-muted)] font-mono uppercase">By Admin • {topAnnouncement.date}</p>
+              </>
+            ) : (
+              <p className="text-sm text-[var(--color-text-muted)] italic">No recent announcements.</p>
+            )}
           </div>
 
           {/* Popular Food (Repurposing Busy Right Now) */}
@@ -441,11 +493,11 @@ export default function Home() {
               <span>🍔</span> Popular Food Spots
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               {foodPlaces.slice(0, 2).map((place, i) => (
-                <div key={i} className="border-2 border-[var(--color-border)] rounded-xl p-3 bg-white">
+               {foodPlaces.map((place, i) => (
+                <div key={i} className="border-2 border-[var(--color-border)] rounded-xl p-3 bg-white cursor-pointer hover:border-[var(--color-green)] transition-colors" onClick={() => handleNav('/explore?cat=food')}>
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-sm">{place.name}</h4>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-green-bg)] text-[var(--color-green)] font-bold uppercase">Open</span>
+                    <h4 className="font-bold text-sm line-clamp-1">{place.name}</h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-green-bg)] text-[var(--color-green)] font-bold uppercase shrink-0">Open</span>
                   </div>
                   <div className="text-[9px] mt-2 tracking-wide" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
                     last updated {timeNow}

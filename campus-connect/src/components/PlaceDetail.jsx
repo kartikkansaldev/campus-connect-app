@@ -72,6 +72,12 @@ export default function PlaceDetail({ place, onClose }) {
                 </div>
               </div>
             ))}
+            <button 
+              onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`, '_blank')}
+              className="w-full mt-4 py-2 flex items-center justify-center gap-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg font-bold transition-colors cursor-pointer"
+            >
+              🗺️ Get Directions on Google Maps
+            </button>
           </div>
 
           <hr className="border-[var(--color-border-light)]" />

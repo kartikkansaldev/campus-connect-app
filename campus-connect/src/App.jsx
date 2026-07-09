@@ -14,7 +14,8 @@ export default function App() {
     <div className="min-h-screen bg-[var(--color-bg)]">
       <BlueprintBackground />
       <Navbar />
-      <main className="max-w-[1100px] mx-auto px-6 py-8 relative z-[1]">
+      {/* Main content wrapper */}
+      <main className="max-w-[1400px] mx-auto px-6 py-8 relative z-[1]">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Explore />} />

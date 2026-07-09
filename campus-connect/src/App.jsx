@@ -60,7 +60,7 @@ export default function App() {
       {!isAuthPage && <Navbar />}
       
       {/* Main content wrapper */}
-      <main className={`mx-auto relative z-[1] ${isAuthPage ? '' : 'max-w-[1400px] px-6 py-8'}`}>
+      <main className={`mx-auto relative z-[1] ${isAuthPage ? '' : 'max-w-[1400px] px-3 sm:px-4 md:px-6 py-4 md:py-8'}`}>
         <GlobalGuard>
           <Routes>
             {/* Auth / Onboarding Routes */}

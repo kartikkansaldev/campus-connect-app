@@ -26,7 +26,7 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b-[2.5px] border-[var(--color-border)]" style={{ backgroundColor: 'var(--color-bg)' }}>
-        <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between h-16 gap-6">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between h-14 sm:h-16 gap-3 md:gap-6">
           {/* Logo */}
           <div className="flex-1 flex justify-start">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">

@@ -9,6 +9,13 @@ const CATEGORY_COLORS = {
   food: '#f97316',
   sports: '#10b981',
   medical: '#ef4444',
+  services: '#475569',
+  events: '#d946ef',
+  hotels: '#3b82f6',
+  transport: '#eab308',
+  printing: '#14b8a6',
+  grocery: '#22c55e',
+  emergency: '#dc2626',
   other: '#6b7280',
 };
 
@@ -18,6 +25,13 @@ const CATEGORY_LABELS = {
   food: 'FOOD',
   sports: 'SPORTS',
   medical: 'HEALTH',
+  services: 'SERVICES',
+  events: 'EVENTS',
+  hotels: 'HOTELS',
+  transport: 'TRANSPORT',
+  printing: 'PRINTING',
+  grocery: 'GROCERY',
+  emergency: 'EMERGENCY',
   other: 'OTHER',
 };
 
@@ -165,12 +179,12 @@ export default function CampusMap() {
       </div>
 
       {/* Category Filter Chips */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {data.placeCategories.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all border-2 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all border-2 whitespace-nowrap flex-shrink-0 ${
               activeCategory === cat.id
                 ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
                 : 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-border-light)] hover:border-[var(--color-border)]'
@@ -185,7 +199,7 @@ export default function CampusMap() {
       <div className="neo-card-static overflow-hidden" style={{ position: 'relative' }}>
         <div
           ref={mapRef}
-          style={{ width: '100%', height: '420px' }}
+          style={{ width: '100%', height: 'clamp(280px, 50vw, 420px)' }}
           className="bg-[var(--color-card-inner)]"
         />
 
@@ -202,7 +216,7 @@ export default function CampusMap() {
         {/* Detail Panel — slides in from left */}
         {selectedPlace && (
           <div
-            className="absolute top-0 left-0 bottom-0 w-[340px] max-w-[85%] bg-[var(--color-card)] border-r-[2.5px] border-[var(--color-border)] overflow-y-auto z-10"
+            className="absolute top-0 left-0 bottom-0 w-full sm:w-[340px] sm:max-w-[85%] bg-[var(--color-card)] border-r-[2.5px] border-[var(--color-border)] overflow-y-auto z-10"
             style={{ animation: 'slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
           >
             {/* Close */}

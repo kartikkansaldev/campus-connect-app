@@ -73,10 +73,15 @@ export function AppProvider({ children }) {
           reviews: clubReviews?.filter(r => r.club_id === c.id) || []
         })) || [];
 
+        const mergedPlaces = localMockData.places.map(localPlace => {
+          const remotePlace = structuredPlaces.find(p => p.id === localPlace.id);
+          return remotePlace ? { ...localPlace, ...remotePlace, reviews: remotePlace.reviews || localPlace.reviews } : localPlace;
+        });
+
         // Build the remoteData object, falling back to localMockData for things not in DB (like user/timetable)
         const remoteData = {
           ...localMockData,
-          places: structuredPlaces,
+          places: mergedPlaces,
           placeCategories: placeCategories || [],
           clubs: structuredClubs,
           clubCategories: clubCategories || [],

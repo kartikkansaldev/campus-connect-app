@@ -22,12 +22,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex-1 flex justify-start">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-9 h-9 rounded-full border-2 border-[var(--color-border)] flex items-center justify-center" style={{ background: 'var(--color-card)' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-border)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
-                </svg>
-              </div>
+              <img src="/images/logo.png" alt="Campus Connect Logo" className="w-10 h-10 rounded-md object-contain border-[1.5px] border-[var(--color-border)] shadow-sm" style={{ background: 'var(--color-card)' }} />
               <div className="leading-none">
                 <div className="text-lg font-extrabold tracking-tight" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em', color: 'var(--color-text)' }}>Campus</div>
                 <div className="text-[10px] font-semibold tracking-[1.5px] uppercase" style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Connect</div>

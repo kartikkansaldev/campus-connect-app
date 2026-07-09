@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
+import { campusData } from '../data/campusData';
 
 /* ===== Category helpers ===== */
 const CATEGORY_COLORS = {
@@ -33,9 +34,17 @@ export default function CampusMap() {
   const [mapReady, setMapReady] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
 
-  /* Filter places that have lat/lng coordinates */
   const mappablePlaces = useMemo(() => {
-    let places = data.places.filter(p => p.lat && p.lng);
+    // Map places from Supabase to use the updated local coordinates
+    let places = data.places.map(p => {
+      const localPlace = campusData.places.find(lp => lp.id === p.id);
+      return {
+        ...p,
+        lat: localPlace ? localPlace.lat : p.lat,
+        lng: localPlace ? localPlace.lng : p.lng
+      };
+    }).filter(p => p.lat && p.lng);
+
     if (activeCategory !== 'all') {
       places = places.filter(p => p.category === activeCategory);
     }

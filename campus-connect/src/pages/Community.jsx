@@ -655,24 +655,33 @@ export default function Community() {
         </div>
 
         {/* Inbox Quick Access */}
-        <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Messages</h3>
+        <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 px-1 font-mono">Messages</p>
         <button 
           onClick={() => { setShowInbox(true); setActiveChatUser(null); }}
-          className="neo-card-static w-full text-left px-4 py-2.5 mb-6 text-sm font-bold bg-[var(--color-card)] flex items-center justify-between cursor-pointer"
+          className="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 mb-5 flex items-center justify-between"
+          style={{ background: 'var(--color-card)', border: '2px solid var(--color-border)', boxShadow: '2px 2px 0 0 var(--color-border)' }}
         >
-          📥 Open Inbox
+          <span className="font-bold text-[var(--color-text)]">📥 Open Inbox</span>
         </button>
 
         {/* Topics List */}
-        <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Topics</h3>
-        <div className="flex flex-col gap-1.5 mb-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 px-1 font-mono">Topics</p>
+        <div className="flex flex-col gap-2 mb-5">
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat;
             return (
               <button 
                 key={cat} 
                 onClick={() => setActiveCategory(cat)} 
-                className={`text-left px-4 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${isActive ? 'bg-[var(--color-border)] text-white' : 'hover:bg-[var(--color-card)] text-[var(--color-text-secondary)]'}`}
+                className="text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer" 
+                style={{ 
+                  background: 'var(--color-card)', 
+                  color: isActive ? 'var(--color-text)' : 'var(--color-text-secondary)', 
+                  border: isActive ? '2px solid var(--color-border)' : '2px solid var(--color-border-light)', 
+                  fontWeight: isActive ? 700 : 500, 
+                  boxShadow: isActive ? '4px 4px 0 0 var(--color-border)' : '2px 2px 0 0 var(--color-border-light)', 
+                  transform: isActive ? 'translate(-2px, -2px)' : 'none' 
+                }}
               >
                 {cat === 'All' ? '🏠 All Posts' : `# ${cat}`}
               </button>

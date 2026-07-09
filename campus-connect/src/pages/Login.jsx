@@ -1,19 +1,45 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { supabase } from '../supabaseClient';
 
 export default function Login() {
   const navigate = useNavigate();
   const { loginUser } = useApp();
   const [name, setName] = useState('');
   const [role, setRole] = useState('student');
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleContinue = (e) => {
+  const handleContinue = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
     
-    // Pass initial data to onboarding state via local storage or navigation state
-    navigate('/onboarding', { state: { name, role } });
+    setIsChecking(true);
+    
+    try {
+      // Check if user already exists
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('name', name.trim())
+        .eq('role', role)
+        .maybeSingle();
+        
+      if (data) {
+        // User exists! Log them in directly
+        localStorage.setItem('cc_session_id', data.id);
+        loginUser(data);
+        navigate(role === 'club_admin' ? '/admin-dashboard' : '/');
+      } else {
+        // User doesn't exist, proceed to onboarding
+        navigate('/onboarding', { state: { name: name.trim(), role } });
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error checking profile. Try again.");
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const handleVisitor = () => {
@@ -76,9 +102,10 @@ export default function Login() {
 
           <button 
             type="submit"
-            className="w-full py-4 bg-[var(--color-text)] text-white rounded-xl font-black text-lg uppercase tracking-wider border-2 border-[var(--color-border)] shadow-[4px_4px_0_0_var(--color-border)] hover:bg-[var(--color-accent)] transition-all active:translate-y-[4px] active:translate-x-[4px] active:shadow-none"
+            disabled={isChecking}
+            className={`w-full py-4 bg-[var(--color-text)] text-white rounded-xl font-black text-lg uppercase tracking-wider border-2 border-[var(--color-border)] shadow-[4px_4px_0_0_var(--color-border)] transition-all ${isChecking ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[var(--color-accent)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none'}`}
           >
-            Continue
+            {isChecking ? 'Checking...' : 'Continue'}
           </button>
         </form>
 

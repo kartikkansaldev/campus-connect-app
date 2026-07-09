@@ -2,21 +2,6 @@ import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import PlaceDetail from '../components/PlaceDetail';
 
-function CrowdBadge({ level }) {
-  const cls = level === 'low' ? 'badge-chill' : level === 'moderate' ? 'badge-moderate' : 'badge-busy';
-  const label = level === 'low' ? 'CHILL' : level === 'moderate' ? 'MODERATE' : 'BUSY';
-  return <span className={cls}>{label}</span>;
-}
-
-function CapacityBar({ level }) {
-  const pct = level === 'low' ? 25 : level === 'moderate' ? 55 : 85;
-  const color = level === 'low' ? 'bg-[var(--color-green)]' : level === 'moderate' ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-red)]';
-  return (
-    <div className="capacity-bar mt-2 mb-3">
-      <div className={`capacity-bar-fill ${color}`} style={{ width: `${pct}%` }} />
-    </div>
-  );
-}
 
 export default function Explore() {
   const { data } = useApp();
@@ -102,9 +87,7 @@ export default function Explore() {
                     <h3 className="font-bold font-heading text-[15px] min-h-[46px]">{place.name}</h3>
                     <p className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest font-bold mt-0.5">{place.category.toUpperCase()}</p>
                   </div>
-                  <CrowdBadge level={place.crowdLevel} />
                 </div>
-                <CapacityBar level={place.crowdLevel} />
 
                 <div className="flex items-center gap-3 text-xs text-[var(--color-text-secondary)] mb-2">
                   <span className="flex items-center gap-1"><span className="star-filled text-sm">★</span> <span className="font-bold text-[var(--color-text)]">{place.rating}</span></span>

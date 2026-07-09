@@ -49,7 +49,7 @@ export default function Explore() {
       <div className="flex flex-col md:flex-row gap-8">
         
         {/* Sidebar */}
-        <div className="w-full md:w-[280px] shrink-0 md:sticky md:top-24 md:h-[calc(100vh-8rem)] overflow-y-auto pb-4 pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div className="w-full md:w-[280px] shrink-0 md:sticky md:top-24 md:h-[calc(100vh-8rem)] overflow-y-auto pb-4 pr-1 hide-scroll">
           {/* Search */}
           <div className="mb-8">
             <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Search</h3>

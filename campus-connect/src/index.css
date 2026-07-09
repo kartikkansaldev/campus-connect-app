@@ -76,6 +76,9 @@ body > #root {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-beige); border-radius: 3px; }
 
+.hide-scroll::-webkit-scrollbar { display: none; }
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* ===== Editorial Card — Hard Offset ===== */
 .neo-card {
   background: var(--color-card);

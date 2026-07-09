@@ -73,15 +73,10 @@ export function AppProvider({ children }) {
           reviews: clubReviews?.filter(r => r.club_id === c.id) || []
         })) || [];
 
-        const mergedPlaces = localMockData.places.map(localPlace => {
-          const remotePlace = structuredPlaces.find(p => p.id === localPlace.id);
-          return remotePlace ? { ...localPlace, ...remotePlace, reviews: remotePlace.reviews || localPlace.reviews } : localPlace;
-        });
-
         // Build the remoteData object, falling back to localMockData for things not in DB (like user/timetable)
         const remoteData = {
           ...localMockData,
-          places: mergedPlaces,
+          places: structuredPlaces,
           placeCategories: placeCategories || [],
           clubs: structuredClubs,
           clubCategories: clubCategories || [],
@@ -136,15 +131,32 @@ export function AppProvider({ children }) {
       return next;
     });
 
+    // Update the average rating locally in liveData so the UI updates instantly
+    setLiveData(prev => {
+      const newPlaces = prev.places.map(p => {
+        if (p.id === placeId) {
+          const allReviews = [...(p.reviews || []), review];
+          const newAvg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+          return { ...p, rating: parseFloat(newAvg.toFixed(1)), reviewCount: allReviews.length };
+        }
+        return p;
+      });
+      return { ...prev, places: newPlaces };
+    });
+
     // Save to Supabase
-    await supabase.from('place_reviews').insert([{
-      place_id: placeId,
-      user_name: review.user,
-      initials: review.initials,
-      rating: review.rating,
-      text: review.text,
-      date: review.date
-    }]);
+    try {
+      await supabase.from('place_reviews').insert([{
+        place_id: placeId,
+        user_name: review.user,
+        initials: review.initials,
+        rating: review.rating,
+        text: review.text,
+        date: review.date
+      }]);
+    } catch (err) {
+      console.error("Error saving review to Supabase", err);
+    }
   }, [liveData.user]);
 
   const addClubReview = useCallback(async (clubId, rating, text) => {

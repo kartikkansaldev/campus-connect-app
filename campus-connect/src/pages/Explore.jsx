@@ -104,9 +104,14 @@ export default function Explore() {
                 {place.signature && <p className="text-xs text-[var(--color-text-secondary)] mb-1">Signature: {place.signature}</p>}
                 <p className="text-[11px] text-[var(--color-text-muted)] mb-3">⏰ {place.hours?.split('|')[0]?.trim()}</p>
 
-                <button className="w-full py-2.5 rounded-lg border-2 border-[var(--color-border)] text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer" onClick={e => { e.stopPropagation(); setSelectedPlace(place); }}>
-                  View & review
-                </button>
+                <div className="flex gap-2">
+                  <button className="flex-1 py-2.5 rounded-lg border-2 border-[var(--color-border)] text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer" onClick={e => { e.stopPropagation(); setSelectedPlace(place); }}>
+                    View & review
+                  </button>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`} target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 rounded-lg border-2 border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer flex items-center justify-center" onClick={e => e.stopPropagation()} title="Get Directions">
+                    📍 Location
+                  </a>
+                </div>
               </div>
             </div>
           ))}

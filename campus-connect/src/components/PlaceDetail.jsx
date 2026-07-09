@@ -28,7 +28,7 @@ export default function PlaceDetail({ place, onClose }) {
   };
 
   return (
-    <>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-24">
       <div className="modal-backdrop" onClick={onClose} />
       <div className="modal-panel">
         {/* Header */}
@@ -109,6 +109,6 @@ export default function PlaceDetail({ place, onClose }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

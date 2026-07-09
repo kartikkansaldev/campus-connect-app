@@ -16,7 +16,6 @@ function setToLS(key, value) {
 export function AppProvider({ children }) {
   const [activeTab, setActiveTab] = useState('home');
   const [bookmarks, setBookmarks] = useState(() => getFromLS('cc_bookmarks'));
-  const [joinedClubs, setJoinedClubs] = useState(() => getFromLS('cc_joined'));
   const [userReviews, setUserReviews] = useState(() => getFromLS('cc_reviews'));
   const [clubReviewsState, setClubReviewsState] = useState(() => getFromLS('cc_club_reviews'));
   const [toast, setToast] = useState(null);
@@ -24,6 +23,13 @@ export function AppProvider({ children }) {
   // State for live Supabase data
   const [liveData, setLiveData] = useState(localMockData); // Default to mock while loading
   const [isLoadingData, setIsLoadingData] = useState(true);
+
+  // --- NEW AUTH STATE ---
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdminView, setIsAdminView] = useState(false);
+  const [sessionInitialized, setSessionInitialized] = useState(false);
+  // Replaces the old local storage joined clubs
+  const [myMemberships, setMyMemberships] = useState([]);
 
   useEffect(() => {
     async function fetchSupabaseData() {
@@ -36,7 +42,8 @@ export function AppProvider({ children }) {
           { data: clubs }, { data: clubCategories }, { data: clubEvents }, { data: clubReviews },
           { data: staff }, { data: staffCategories },
           { data: classrooms }, { data: announcements }, 
-          { data: academicCalendar }, { data: examSchedule }, { data: quickLinks }
+          { data: academicCalendar }, { data: examSchedule }, { data: quickLinks },
+          { data: clubMemberships } // NEW
         ] = await Promise.all([
           supabase.from('places').select('*'),
           supabase.from('place_categories').select('*'),
@@ -51,7 +58,8 @@ export function AppProvider({ children }) {
           supabase.from('announcements').select('*'),
           supabase.from('academic_calendar').select('*'),
           supabase.from('exam_schedule').select('*'),
-          supabase.from('quick_links').select('*')
+          supabase.from('quick_links').select('*'),
+          supabase.from('club_memberships').select('*') // NEW
         ]);
 
         // Reconstruct the nested arrays so they match the expected format
@@ -66,14 +74,15 @@ export function AppProvider({ children }) {
         const structuredClubs = clubs?.map(c => ({
           ...c,
           meetingSchedule: c.meeting_schedule,
-          memberCount: c.member_count,
+          // Member count is now dynamically calculated from 'accepted' members!
+          memberCount: clubMemberships?.filter(m => m.club_id === c.id && m.status === 'accepted').length || 0,
           isRecruiting: c.is_recruiting,
           reviewCount: c.review_count,
           events: clubEvents?.filter(e => e.club_id === c.id) || [],
           reviews: clubReviews?.filter(r => r.club_id === c.id) || []
         })) || [];
 
-        // Build the remoteData object, falling back to localMockData for things not in DB (like user/timetable)
+        // Build the remoteData object, falling back to localMockData for things not in DB
         const remoteData = {
           ...localMockData,
           places: structuredPlaces,
@@ -90,14 +99,48 @@ export function AppProvider({ children }) {
         };
 
         setLiveData(remoteData);
+
+        // --- AUTH INITIALIZATION ---
+        const sessionId = localStorage.getItem('cc_session_id');
+        if (sessionId) {
+          const { data: profileData } = await supabase.from('profiles').select('*').eq('id', sessionId).single();
+          if (profileData) {
+            setCurrentUser(profileData);
+            if (profileData.role === 'club_admin') {
+              setIsAdminView(true);
+            }
+            // Load user's memberships
+            const userMems = clubMemberships?.filter(m => m.profile_id === profileData.id) || [];
+            setMyMemberships(userMems);
+          }
+        }
+        setSessionInitialized(true);
+
       } catch (err) {
         console.error("Error fetching data from Supabase:", err);
+        setSessionInitialized(true);
       } finally {
         setIsLoadingData(false);
       }
     }
 
     fetchSupabaseData();
+  }, []);
+
+  const loginUser = useCallback((profile) => {
+    setCurrentUser(profile);
+    if (profile) {
+      if (profile.role === 'club_admin') setIsAdminView(true);
+    } else {
+      setIsAdminView(false);
+    }
+  }, []);
+
+  const logoutUser = useCallback(() => {
+    setCurrentUser(null);
+    setIsAdminView(false);
+    setMyMemberships([]);
+    localStorage.removeItem('cc_session_id');
   }, []);
 
   const showToast = useCallback((msg) => {
@@ -113,16 +156,42 @@ export function AppProvider({ children }) {
     });
   }, []);
 
-  const toggleJoinClub = useCallback((clubId) => {
-    setJoinedClubs(prev => {
-      const next = prev.includes(clubId) ? prev.filter(id => id !== clubId) : [...prev, clubId];
-      setToLS('cc_joined', next);
-      return next;
-    });
-  }, []);
+  const toggleJoinClub = useCallback(async (clubId) => {
+    if (!currentUser || currentUser.role !== 'student') {
+      showToast("Only students can join clubs!");
+      return;
+    }
+
+    const existingMem = myMemberships.find(m => m.club_id === clubId);
+    
+    if (existingMem) {
+      // Leave club
+      setMyMemberships(prev => prev.filter(m => m.club_id !== clubId));
+      await supabase.from('club_memberships').delete().eq('id', existingMem.id);
+      showToast("Request cancelled");
+    } else {
+      // Join club (pending)
+      const newMem = {
+        club_id: clubId,
+        profile_id: currentUser.id,
+        status: 'pending'
+      };
+      // Optimistic update
+      const tempMem = { ...newMem, id: 'temp-'+Date.now() };
+      setMyMemberships(prev => [...prev, tempMem]);
+      showToast("Join request sent!");
+      
+      const { data } = await supabase.from('club_memberships').insert([newMem]).select().single();
+      if (data) {
+        setMyMemberships(prev => prev.map(m => m.id === tempMem.id ? data : m));
+      }
+    }
+  }, [currentUser, myMemberships, showToast]);
 
   const addReview = useCallback(async (placeId, rating, text) => {
-    const review = { placeId, user: liveData.user.name, initials: liveData.user.initials, rating, text, date: new Date().toISOString().split('T')[0] };
+    const userName = currentUser?.name || 'Visitor';
+    const initials = userName.substring(0, 1).toUpperCase();
+    const review = { placeId, user: userName, initials, rating, text, date: new Date().toISOString().split('T')[0] };
     
     // Save to local state for immediate UI feedback
     setUserReviews(prev => {
@@ -157,10 +226,12 @@ export function AppProvider({ children }) {
     } catch (err) {
       console.error("Error saving review to Supabase", err);
     }
-  }, [liveData.user]);
+  }, [currentUser]);
 
   const addClubReview = useCallback(async (clubId, rating, text) => {
-    const review = { clubId, user: liveData.user.name, initials: liveData.user.initials, rating, text, date: new Date().toISOString().split('T')[0] };
+    const userName = currentUser?.name || 'Visitor';
+    const initials = userName.substring(0, 1).toUpperCase();
+    const review = { clubId, user: userName, initials, rating, text, date: new Date().toISOString().split('T')[0] };
     
     setClubReviewsState(prev => {
       const next = [...prev, review];
@@ -176,21 +247,26 @@ export function AppProvider({ children }) {
       text: review.text,
       date: review.date
     }]);
-  }, [liveData.user]);
+  }, [currentUser]);
 
   const clearAllData = useCallback(() => {
-    setBookmarks([]); setJoinedClubs([]); setUserReviews([]); setClubReviewsState([]);
-    ['cc_bookmarks', 'cc_joined', 'cc_reviews', 'cc_club_reviews'].forEach(k => localStorage.removeItem(k));
+    setBookmarks([]); setMyMemberships([]); setUserReviews([]); setClubReviewsState([]);
+    ['cc_bookmarks', 'cc_reviews', 'cc_club_reviews'].forEach(k => localStorage.removeItem(k));
   }, []);
 
   return (
     <AppContext.Provider value={{
       data: liveData, activeTab, setActiveTab,
       bookmarks, toggleBookmark,
-      joinedClubs, toggleJoinClub,
+      joinedClubs: myMemberships.map(m => m.club_id), // Map to club_ids for backward compatibility
+      myMemberships, toggleJoinClub,
       userReviews, addReview,
       clubReviews: clubReviewsState, addClubReview,
-      toast, showToast, clearAllData, isLoadingData
+      toast, showToast, clearAllData, isLoadingData,
+      // Auth values
+      currentUser, loginUser, logoutUser,
+      isAdminView, setIsAdminView,
+      sessionInitialized
     }}>
       {children}
       {toast && (

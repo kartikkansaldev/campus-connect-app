@@ -44,7 +44,7 @@ Answer concisely in a friendly, conversational tone. Do not use markdown unless 
           'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'llama3-8b-8192',
+          model: 'llama-3.3-70b-versatile',
           messages: [
             { role: 'system', content: campusContext },
             ...newMessages
@@ -55,7 +55,9 @@ Answer concisely in a friendly, conversational tone. Do not use markdown unless 
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errText = await response.text();
+        console.error("Groq API Error Response:", errText);
+        throw new Error(`API error: ${response.status} - ${errText}`);
       }
 
       const resData = await response.json();
@@ -64,9 +66,10 @@ Answer concisely in a friendly, conversational tone. Do not use markdown unless 
       }
     } catch (error) {
       console.error('Error fetching AI response:', error);
+      const keyStatus = import.meta.env.VITE_GROQ_API_KEY ? "Key is loaded." : "Key is MISSING!";
       setMessages([...newMessages, { 
         role: 'assistant', 
-        content: 'Sorry, I encountered an error connecting to the AI server. Please check your API key and internet connection.' 
+        content: `Error: ${error.message}. ${keyStatus}` 
       }]);
     } finally {
       setIsLoading(false);

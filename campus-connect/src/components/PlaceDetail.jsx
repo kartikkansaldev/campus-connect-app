@@ -28,9 +28,9 @@ export default function PlaceDetail({ place, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 pt-24 sm:p-4 sm:pt-28 animate-in fade-in duration-200">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-[var(--color-bg)] w-full sm:w-[800px] max-h-[85vh] sm:max-h-[80vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4">
+    <>
+      <div className="modal-backdrop" onClick={onClose} />
+      <div className="modal-panel">
         {/* Header */}
         <div className="p-6 border-b-2 border-[var(--color-border)]">
           <div className="flex items-start justify-between">
@@ -40,6 +40,9 @@ export default function PlaceDetail({ place, onClose }) {
               <div className="flex items-center gap-3 mt-2 flex-wrap">
                 <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-gray-100 text-[var(--color-text-secondary)]">{place.category}</span>
                 <span className="flex items-center gap-1 text-sm"><Stars rating={place.rating} /> <strong>{place.rating}</strong> <span className="text-[var(--color-text-muted)]">({placeReviews.length})</span></span>
+                <span className={place.crowdLevel === 'low' ? 'badge-chill' : place.crowdLevel === 'moderate' ? 'badge-moderate' : 'badge-busy'}>
+                  {place.crowdLevel === 'low' ? 'CHILL' : place.crowdLevel === 'moderate' ? 'MODERATE' : 'BUSY'}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -106,6 +109,6 @@ export default function PlaceDetail({ place, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

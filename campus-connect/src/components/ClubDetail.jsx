@@ -172,7 +172,7 @@ export default function ClubDetail({ club, onClose, currentUser }) {
             <div className="neo-card-static p-3 bg-white">
               <div className="text-xs text-[var(--color-text-muted)] font-bold uppercase mb-1">Rating</div>
               <div className="font-bold text-sm text-[var(--color-orange)] flex items-center gap-1">
-                ★ {club.rating ? Number(club.rating).toFixed(1) : 'New'} <span className="text-[var(--color-text-muted)] text-[10px]">({club.review_count || 0})</span>
+                ★ {club.rating !== undefined ? Number(club.rating).toFixed(1) : '0.0'} <span className="text-[var(--color-text-muted)] text-[10px]">({club.review_count || 0})</span>
               </div>
             </div>
           </div>

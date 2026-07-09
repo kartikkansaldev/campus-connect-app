@@ -28,8 +28,9 @@ export default function PlaceDetail({ place, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop p-4 flex items-center justify-center" onClick={onClose}>
-      <div className="modal-panel relative mt-16 max-h-[85vh] flex flex-col w-full max-w-2xl bg-[var(--color-bg)] shadow-2xl rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 pt-24 sm:p-4 sm:pt-28 animate-in fade-in duration-200">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="relative bg-[var(--color-bg)] w-full sm:w-[800px] max-h-[85vh] sm:max-h-[80vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4">
         {/* Header */}
         <div className="p-6 border-b-2 border-[var(--color-border)]">
           <div className="flex items-start justify-between">

@@ -126,7 +126,7 @@ export default function ClubDetail({ club, onClose, currentUser }) {
     : (club.social_links || {});
 
   return (
-    <>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-24">
       <div className="modal-backdrop" onClick={onClose} />
       <div className="modal-panel animate-in">
         {/* Cover / Header */}
@@ -337,6 +337,6 @@ export default function ClubDetail({ club, onClose, currentUser }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

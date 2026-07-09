@@ -131,13 +131,13 @@ export default function ClubDetail({ club, onClose, currentUser }) {
       <div className="modal-panel animate-in">
         {/* Cover / Header */}
         <div className="relative h-32 bg-[var(--color-border)] p-5 flex flex-col justify-end overflow-hidden">
-          <div className="absolute inset-0 opacity-10 mix-blend-overlay">
+          <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs><pattern id="grid-pattern-detail" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="white" strokeWidth="1"/></pattern></defs>
               <rect width="100%" height="100%" fill="url(#grid-pattern-detail)" />
             </svg>
           </div>
-          <button onClick={onClose} className="absolute top-4 right-4 text-white hover:opacity-80 transition-opacity bg-black/20 rounded-full p-1 z-10">
+          <button onClick={onClose} className="absolute top-4 right-4 text-white hover:opacity-80 transition-opacity bg-black/20 rounded-full p-1 z-50 cursor-pointer">
              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           
@@ -149,7 +149,7 @@ export default function ClubDetail({ club, onClose, currentUser }) {
               <span className="text-xs font-bold uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-sm mb-1 inline-block">
                 {club.category}
               </span>
-              <h2 className="text-2xl font-black font-heading leading-tight">{club.name}</h2>
+              <h2 className="text-2xl font-black font-heading leading-tight text-[var(--color-bg)]">{club.name}</h2>
             </div>
           </div>
         </div>

@@ -28,7 +28,7 @@ export default function PlaceDetail({ place, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop p-4 flex items-center justify-center" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-panel max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="p-6 border-b-2 border-[var(--color-border)]">

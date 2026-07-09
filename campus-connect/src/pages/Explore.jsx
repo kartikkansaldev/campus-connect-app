@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import PlaceDetail from '../components/PlaceDetail';
-
+import CampusMap from '../components/CampusMap';
 
 export default function Explore() {
   const { data } = useApp();
@@ -34,6 +34,9 @@ export default function Explore() {
         `}</style>
         <h1 className="text-3xl font-extrabold font-heading mb-1">Explore Campus</h1>
       <p className="text-sm text-[var(--color-text-secondary)] mb-6">Navigation, description, ratings & reviews.</p>
+
+      {/* ===== Campus Map Hero Section ===== */}
+      <CampusMap />
 
       {/* Two Column Layout */}
       <div className="flex flex-col md:flex-row gap-8">

@@ -8,6 +8,7 @@ import Community from './pages/Community';
 import Academics from './pages/Academics';
 import VisitorGuide from './pages/VisitorGuide';
 import Profile from './pages/Profile';
+import AI from './pages/AI';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/community" element={<Community />} />
           <Route path="/academics" element={<Academics />} />
           <Route path="/visitor-guide" element={<VisitorGuide />} />
+          <Route path="/ai" element={<AI />} />
           <Route path="/profile" element={<Profile />} />
           {/* Fallback to Home */}
           <Route path="*" element={<Navigate to="/" replace />} />

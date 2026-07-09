@@ -26,19 +26,20 @@ export default function Explore() {
   }, [data.places, category, search, sort]);
 
   return (
-    <div className="animate-in">
-      <style>{`
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      <h1 className="text-3xl font-extrabold font-heading mb-1">Explore Campus</h1>
+    <>
+      <div className="animate-in">
+        <style>{`
+          .hide-scroll::-webkit-scrollbar { display: none; }
+          .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
+        <h1 className="text-3xl font-extrabold font-heading mb-1">Explore Campus</h1>
       <p className="text-sm text-[var(--color-text-secondary)] mb-6">Navigation, description, ratings & reviews.</p>
 
       {/* Two Column Layout */}
-      <div className="flex flex-col md:flex-row gap-8 md:h-[calc(100vh-12rem)]">
+      <div className="flex flex-col md:flex-row gap-8">
         
         {/* Sidebar */}
-        <div className="w-full md:w-[280px] shrink-0 h-full overflow-y-auto pb-4 pr-1 hide-scroll">
+        <div className="w-full md:w-[280px] shrink-0 md:sticky md:top-24 md:h-[calc(100vh-8rem)] overflow-y-auto pb-4 pr-1 hide-scroll">
           {/* Search */}
           <div className="mb-8">
             <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-3 font-mono">Search</h3>
@@ -69,7 +70,7 @@ export default function Explore() {
         </div>
 
         {/* Main Content (Places Grid) */}
-        <div className="flex-1 h-full overflow-y-auto pb-10 pr-2 hide-scroll">
+        <div className="flex-1">
 
       {/* Places Grid */}
       {filteredPlaces.length === 0 ? (
@@ -110,8 +111,9 @@ export default function Explore() {
       )}
         </div>
       </div>
+      </div>
 
       {selectedPlace && <PlaceDetail place={selectedPlace} onClose={() => setSelectedPlace(null)} />}
-    </div>
+    </>
   );
 }

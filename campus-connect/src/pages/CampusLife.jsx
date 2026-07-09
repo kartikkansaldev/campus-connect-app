@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { supabase } from '../supabaseClient';
 import ClubDetail from '../components/ClubDetail';
+import EventDetail from '../components/EventDetail';
 
 export default function CampusLife() {
   const { data } = useApp();
@@ -13,6 +14,7 @@ export default function CampusLife() {
   const [loading, setLoading] = useState(true);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [selectedClub, setSelectedClub] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const currentUser = { name: 'Arjun M.' }; // Mock current user
 
   useEffect(() => {
@@ -139,32 +141,35 @@ export default function CampusLife() {
               <p className="text-[var(--color-text-secondary)]">There are no upcoming events scheduled at the moment.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {events.map(event => (
-                <div key={event.id} className="neo-card-static flex flex-col overflow-hidden">
+                <div key={event.id} className="neo-card-static flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1 transition-transform h-full" onClick={() => setSelectedEvent(event)}>
                   {event.image_url && (
-                    <div className="w-full h-56 bg-black">
-                      <img src={event.image_url} alt={event.title} className="w-full h-full object-contain" />
+                    <div className="w-full h-40 bg-black shrink-0">
+                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="p-5 flex gap-4">
-                    <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-14 h-14 rounded-xl flex flex-col items-center justify-center shrink-0 border border-[var(--color-orange)]">
-                      <span className="text-[10px] font-bold uppercase leading-none mb-1">
-                        {new Date(event.date).toLocaleString('default', { month: 'short' })}
-                      </span>
-                      <span className="text-xl font-black font-heading leading-none">
-                        {new Date(event.date).getDate()}
-                      </span>
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="flex gap-4 mb-3">
+                      <div className="bg-[var(--color-orange-bg)] text-[var(--color-orange)] w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 border border-[var(--color-orange)]">
+                        <span className="text-[9px] font-bold uppercase leading-none mb-1">
+                          {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                        </span>
+                        <span className="text-lg font-black font-heading leading-none">
+                          {new Date(event.date).getDate()}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm mb-0.5 line-clamp-2">{event.title}</h3>
+                        <p className="text-[10px] text-[var(--color-text-secondary)] font-bold uppercase tracking-wider">{event.venue}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-1">{event.title}</h3>
-                      <p className="text-[11px] text-[var(--color-text-secondary)] mb-3 font-bold uppercase tracking-wider">{event.venue} • {event.time}</p>
-                      <p className="text-sm text-[var(--color-text)] whitespace-pre-line leading-relaxed mb-4">{event.description}</p>
-                      {event.link && (
-                        <a href={event.link} target="_blank" rel="noopener noreferrer" className="inline-block px-4 py-2 bg-[var(--color-text)] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
-                          Register Here →
-                        </a>
-                      )}
+                    <p className="text-xs text-[var(--color-text-secondary)] line-clamp-3 mb-4 leading-relaxed flex-1">{event.description}</p>
+                    
+                    <div className="mt-auto pt-4 border-t border-[var(--color-border-light)] flex gap-2">
+                      <button className="flex-1 py-2 rounded-lg border border-[var(--color-border)] text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer" onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}>
+                        View Details
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -184,6 +189,9 @@ export default function CampusLife() {
 
       {selectedClub && (
         <ClubDetail club={selectedClub} onClose={() => setSelectedClub(null)} currentUser={currentUser} />
+      )}
+      {selectedEvent && (
+        <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
     </div>
   );

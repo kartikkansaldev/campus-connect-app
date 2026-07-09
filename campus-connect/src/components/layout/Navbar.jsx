@@ -67,7 +67,15 @@ export default function Navbar() {
           <div className="flex-1 flex justify-end items-center gap-3 shrink-0">
             {currentUser?.role === 'club_admin' && (
               <button 
-                onClick={() => setIsAdminView(!isAdminView)}
+                onClick={() => {
+                  if (isAdminView) {
+                    setIsAdminView(false);
+                    navigate('/');
+                  } else {
+                    setIsAdminView(true);
+                    navigate('/admin-dashboard');
+                  }
+                }}
                 className={`hidden md:flex px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border-2 border-[var(--color-border)] transition-all ${isAdminView ? 'bg-[var(--color-accent)] text-white shadow-[2px_2px_0_0_var(--color-border)]' : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]'}`}
               >
                 {isAdminView ? 'Admin View Active' : 'Switch to Admin'}
@@ -128,7 +136,16 @@ export default function Navbar() {
             <div className="mt-4 pt-4 border-t-2 border-[var(--color-border)]">
               {currentUser?.role === 'club_admin' && (
                 <button 
-                  onClick={() => { setIsAdminView(!isAdminView); setMobileOpen(false); }}
+                  onClick={() => { 
+                    if (isAdminView) {
+                      setIsAdminView(false);
+                      navigate('/');
+                    } else {
+                      setIsAdminView(true);
+                      navigate('/admin-dashboard');
+                    }
+                    setMobileOpen(false); 
+                  }}
                   className="w-full text-left px-4 py-3 rounded-xl text-lg font-semibold bg-[var(--color-accent)] text-white mb-2"
                 >
                   {isAdminView ? 'Switch to Student View' : 'Switch to Admin View'}

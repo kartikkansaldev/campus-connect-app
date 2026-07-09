@@ -280,10 +280,7 @@ body > #root {
 }
 
 .modal-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   z-index: 51;
   max-width: 600px;
   width: 90%;
@@ -302,8 +299,8 @@ body > #root {
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ===== Responsive nav ===== */

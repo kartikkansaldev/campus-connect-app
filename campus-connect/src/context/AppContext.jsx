@@ -28,6 +28,7 @@ export function AppProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAdminView, setIsAdminView] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
+  const [isVisitor, setIsVisitor] = useState(() => localStorage.getItem('cc_is_visitor') === 'true');
   // Replaces the old local storage joined clubs
   const [myMemberships, setMyMemberships] = useState([]);
 
@@ -127,21 +128,28 @@ export function AppProvider({ children }) {
     fetchSupabaseData();
   }, []);
 
-  const loginUser = useCallback((profile) => {
-    setCurrentUser(profile);
-    if (profile) {
-      if (profile.role === 'club_admin') setIsAdminView(true);
-    } else {
-      setIsAdminView(false);
+  const loginUser = (userObj) => {
+    setCurrentUser(userObj);
+    setIsAdminView(userObj?.role === 'club_admin');
+    if (userObj) {
+      localStorage.setItem('cc_is_visitor', 'false');
+      setIsVisitor(false);
     }
-  }, []);
+  };
 
-  const logoutUser = useCallback(() => {
+  const handleSetIsVisitor = (val) => {
+    localStorage.setItem('cc_is_visitor', val ? 'true' : 'false');
+    setIsVisitor(val);
+  };
+
+  const logoutUser = () => {
     setCurrentUser(null);
-    setIsAdminView(false);
     setMyMemberships([]);
+    setIsAdminView(false);
     localStorage.removeItem('cc_session_id');
-  }, []);
+    localStorage.removeItem('cc_is_visitor');
+    setIsVisitor(false);
+  };
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -258,15 +266,16 @@ export function AppProvider({ children }) {
     <AppContext.Provider value={{
       data: liveData, activeTab, setActiveTab,
       bookmarks, toggleBookmark,
-      joinedClubs: myMemberships.map(m => m.club_id), // Map to club_ids for backward compatibility
+      joinedClubs: myMemberships.map(m => m.club_id),
       myMemberships, toggleJoinClub,
       userReviews, addReview,
       clubReviews: clubReviewsState, addClubReview,
       toast, showToast, clearAllData, isLoadingData,
-      // Auth values
       currentUser, loginUser, logoutUser,
       isAdminView, setIsAdminView,
-      sessionInitialized
+      sessionInitialized,
+      isVisitor,
+      setIsVisitor: handleSetIsVisitor
     }}>
       {children}
       {toast && (

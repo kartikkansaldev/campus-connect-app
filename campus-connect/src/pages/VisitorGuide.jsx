@@ -15,7 +15,7 @@ export default function VisitorGuide() {
   return (
     <div className="animate-in">
       <div className="neo-card-static p-8 bg-[var(--color-text)] text-[var(--color-bg)] mb-8">
-        <h1 className="text-4xl font-extrabold font-heading mb-3">Welcome to Greenfield!</h1>
+        <h1 className="text-4xl font-extrabold font-heading mb-3">Welcome to Chitkara!</h1>
         <p className="text-[var(--color-bg)] opacity-80 max-w-xl font-medium leading-relaxed">
           Whether you're a prospective student, parent, or guest lecturer, we've compiled everything you need to navigate our 200-acre campus effortlessly.
         </p>

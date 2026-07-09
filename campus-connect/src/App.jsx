@@ -12,25 +12,38 @@ import AI from './pages/AI';
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import AdminDashboard from './pages/AdminDashboard';
+import CampusSelect from './pages/CampusSelect';
 import { useApp } from './context/AppContext';
 
 // Guard for authenticated pages
 function ProtectedRoute({ children, requireAdmin = false }) {
-  const { currentUser, sessionInitialized } = useApp();
+  const { currentUser } = useApp();
   
-  if (!sessionInitialized) return null; // Wait for auth to load
-  
-  // If not logged in at all (visitor or logged out), redirect to login
-  if (!currentUser) {
-    // If they are specifically a visitor they should be able to view regular pages.
-    // However, if requireAdmin is true, visitors should not see it.
-    if (requireAdmin) return <Navigate to="/login" replace />;
-    return children;
+  if (requireAdmin && currentUser?.role !== 'club_admin') {
+    return <Navigate to="/" replace />;
   }
 
-  // If requires admin, check role
-  if (requireAdmin && currentUser.role !== 'club_admin') {
-    return <Navigate to="/" replace />;
+  return children;
+}
+
+// Global Guard to enforce Campus -> Login -> App flow
+function GlobalGuard({ children }) {
+  const { sessionInitialized, currentUser, isVisitor } = useApp();
+  const location = useLocation();
+  
+  if (!sessionInitialized) return null; // Wait for auth to load
+
+  const hasCampus = !!localStorage.getItem('cc_campus');
+  const path = location.pathname;
+
+  // 1. Must select campus first
+  if (!hasCampus && path !== '/campus-select') {
+    return <Navigate to="/campus-select" replace />;
+  }
+
+  // 2. If campus selected, but not logged in and not visitor -> force login
+  if (hasCampus && !currentUser && !isVisitor && path !== '/login' && path !== '/onboarding' && path !== '/campus-select') {
+    return <Navigate to="/login" replace />;
   }
 
   return children;
@@ -38,7 +51,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
 export default function App() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/onboarding';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/onboarding' || location.pathname === '/campus-select';
   const { isAdminView } = useApp();
 
   return (
@@ -48,10 +61,12 @@ export default function App() {
       
       {/* Main content wrapper */}
       <main className={`mx-auto relative z-[1] ${isAuthPage ? '' : 'max-w-[1400px] px-6 py-8'}`}>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+        <GlobalGuard>
+          <Routes>
+            {/* Auth / Onboarding Routes */}
+            <Route path="/campus-select" element={<CampusSelect />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/onboarding" element={<Onboarding />} />
           
           {/* Admin Routes */}
           <Route path="/admin-dashboard" element={
@@ -71,8 +86,9 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </GlobalGuard>
       </main>
     </div>
   );

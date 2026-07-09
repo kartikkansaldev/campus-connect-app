@@ -312,7 +312,7 @@ export default function Home() {
     <div className="space-y-7 animate-in">
       {/* Section Title */}
       <h2 className="text-[1.05rem] font-extrabold tracking-tight" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.01em' }}>
-        Greenfield University Live Activity Feed
+        Chitkara University Live Activity Feed
       </h2>
 
       {/* Hero + Stats Row */}
@@ -331,7 +331,7 @@ export default function Home() {
                 letterSpacing: '0.8px',
               }}
             >
-              ✦ GREENFIELD UNIVERSITY
+              ✦ Chitkara UNIVERSITY
             </span>
             <h1 className="text-[2.2rem] font-extrabold leading-[1.08] mb-0.5" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.03em' }}>
               Navigate campus.
@@ -460,7 +460,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="text-center py-6 border-t" style={{ borderColor: 'var(--color-border-light)' }}>
         <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.3px' }}>
-          Campus Connect | Greenfield University © 2026 | support@campusconnect.edu
+          Campus Connect | Chitkara University © 2026 | support@campusconnect.edu
         </p>
       </footer>
     </div>

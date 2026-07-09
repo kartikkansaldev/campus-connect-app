@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { loginUser } = useApp();
+  const { loginUser, setIsVisitor } = useApp();
   const [name, setName] = useState('');
   const [role, setRole] = useState('student');
   const [isChecking, setIsChecking] = useState(false);
@@ -45,6 +45,7 @@ export default function Login() {
   const handleVisitor = () => {
     // Visitor bypasses onboarding and gets read-only access
     loginUser(null);
+    setIsVisitor(true);
     navigate('/');
   };
 

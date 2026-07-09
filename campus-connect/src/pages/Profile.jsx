@@ -126,7 +126,7 @@ export default function Profile() {
         </button>
         <div className="mt-6 text-xs text-[var(--color-text-muted)]">
           <div>Campus Connect v2.0</div>
-          <div>Made with ❤️ for Greenfield University</div>
+          <div>Made with ❤️ for Chitkara University</div>
         </div>
       </div>
     </div>

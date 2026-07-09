@@ -24,13 +24,16 @@ export default function AI() {
     setIsLoading(true);
 
     try {
-      // Build a basic context string from campusData so the AI knows about the campus
+      // Build a basic context string from Supabase data so the AI knows about the campus
       const campusContext = `
 You are a helpful, friendly AI assistant for Chitkara University's Campus Connect app.
 You help students find clubs, events, and campus facilities.
-Here is some context about the campus:
-- Clubs: ${data.clubs.map(c => c.name).join(', ')}
-- Places: ${data.places.map(p => p.name).join(', ')}
+Here is live context from the database:
+- Clubs: ${data.clubs?.map(c => c.name).join(', ') || 'None'}
+- Places: ${data.places?.map(p => p.name).join(', ') || 'None'}
+- Events: ${data.events?.map(e => e.title).join(', ') || 'None'}
+- Staff: ${data.staff?.map(s => s.name).join(', ') || 'None'}
+
 Answer concisely in a friendly, conversational tone. Do not use markdown unless necessary.
       `;
 

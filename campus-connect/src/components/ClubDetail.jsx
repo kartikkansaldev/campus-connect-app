@@ -149,7 +149,7 @@ export default function ClubDetail({ club, onClose, currentUser }) {
               <span className="text-xs font-bold uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-sm mb-1 inline-block">
                 {club.category}
               </span>
-              <h2 className="text-2xl font-black font-heading leading-tight text-[var(--color-bg)]">{club.name}</h2>
+              <h2 className="text-2xl font-black font-heading leading-tight" style={{ color: 'var(--color-bg)' }}>{club.name}</h2>
             </div>
           </div>
         </div>

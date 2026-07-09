@@ -108,20 +108,20 @@ export default function CampusLife() {
                 <div key={club.id} className="neo-card-static p-5 flex flex-col justify-between cursor-pointer hover:-translate-y-1 transition-transform group" onClick={() => setSelectedClub(club)}>
                   <div>
                     <div className="flex justify-between items-start mb-3">
-                      <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl border-2 border-[var(--color-border)]">
+                      <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl border-2 border-[var(--color-border)] group-hover:bg-[var(--color-bg)] transition-colors">
                         {club.category === 'Technical' ? '💻' : club.category === 'Cultural' ? '🎭' : club.category === 'Entrepreneurship' ? '🚀' : '🎯'}
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <span className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-green-bg)] text-[var(--color-green)] font-bold uppercase tracking-wider">Recruiting</span>
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${club.status === 'Active' ? 'bg-[var(--color-green-bg)] text-[var(--color-green)]' : 'bg-gray-200 text-gray-500'}`}>{club.status}</span>
                         {club.rating >= 0 && <span className="text-[10px] font-bold text-[var(--color-orange)]">★ {Number(club.rating).toFixed(1)} <span className="text-[var(--color-text-muted)]">({club.review_count || 0})</span></span>}
                       </div>
                     </div>
-                    <h3 className="font-extrabold text-lg font-heading mb-1">{club.name}</h3>
+                    <h3 className="font-extrabold text-lg font-heading mb-1 group-hover:text-[var(--color-accent)] transition-colors">{club.name}</h3>
                     <p className="text-xs text-[var(--color-text-secondary)] mb-4 leading-relaxed line-clamp-2">{club.description}</p>
                   </div>
                   <div className="flex justify-between items-center pt-4 border-t border-[var(--color-border-light)]">
                     <div className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">{club.members_count || 0} Members</div>
-                    <button className="text-xs font-bold uppercase text-[var(--color-accent)] hover:underline cursor-pointer">Join</button>
+                    <button className="text-xs font-bold uppercase text-[var(--color-accent)]">View Details →</button>
                   </div>
                 </div>
               ))}

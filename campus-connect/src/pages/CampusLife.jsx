@@ -113,7 +113,7 @@ export default function CampusLife() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${club.status === 'Active' ? 'bg-[var(--color-green-bg)] text-[var(--color-green)]' : 'bg-gray-200 text-gray-500'}`}>{club.status}</span>
-                        {club.rating > 0 && <span className="text-[10px] font-bold text-[var(--color-orange)]">★ {Number(club.rating).toFixed(1)}</span>}
+                        {club.rating > 0 && <span className="text-[10px] font-bold text-[var(--color-orange)]">★ {Number(club.rating).toFixed(1)} <span className="text-[var(--color-text-muted)]">({club.review_count || 0})</span></span>}
                       </div>
                     </div>
                     <h3 className="font-extrabold text-lg font-heading mb-1 group-hover:text-[var(--color-accent)] transition-colors">{club.name}</h3>

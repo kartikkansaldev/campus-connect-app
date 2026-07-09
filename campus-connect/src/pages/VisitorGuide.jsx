@@ -21,6 +21,7 @@ export default function VisitorGuide() {
 
   const quickActions = [
     { label: 'Navigate Campus', icon: '🧭', action: () => document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth' }) },
+    { label: 'Location', icon: '📍', action: () => window.open('https://www.google.com/maps/search/?api=1&query=Chitkara+University+Punjab', '_blank'), color: 'bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-500 hover:bg-blue-100' },
     { label: 'Emergency', icon: '🚨', action: () => { setShowEmergency(true); scrollToDirectory(); }, color: 'bg-red-50 text-red-700 border-red-200 hover:border-red-500 hover:bg-red-100' },
     { label: 'Parking', icon: '🅿', action: () => { setActiveCategory('services'); scrollToDirectory(); } },
     { label: 'Food', icon: '🍔', action: () => { setActiveCategory('food'); scrollToDirectory(); } },

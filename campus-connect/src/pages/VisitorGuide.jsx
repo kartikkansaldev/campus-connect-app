@@ -15,17 +15,7 @@ export default function VisitorGuide() {
   const [showEmergency, setShowEmergency] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const guideCategories = [
-    { id: 'academic', icon: '🏫', title: 'Campus Tour', desc: 'Guided tours and self-guided maps.' },
-    { id: 'services', icon: '🅿', title: 'Parking', desc: 'Visitor parking zones and permits.' },
-    { id: 'food', icon: '🍔', title: 'Nearby Restaurants', desc: 'Top food spots just outside campus.' },
-    { id: 'hotels', icon: '🏨', title: 'Hotels', desc: 'Recommended accommodations for guests.' },
-    { id: 'transport', icon: '🚖', title: 'Transport', desc: 'Shuttle schedules and taxi stands.' },
-    { id: 'medical', icon: '🏥', title: 'Medical', desc: 'Nearest hospitals and pharmacies.' },
-    { id: 'printing', icon: '🖨', title: 'Printing', desc: 'Stationery and print shops on campus.' },
-    { id: 'grocery', icon: '🛒', title: 'Grocery', desc: 'Supermarkets and daily needs.' },
-    { id: 'events', icon: '📍', title: 'Important Places', desc: 'Admin block, library, and auditoriums.' }
-  ];
+  const guideCategories = data.visitorGuideCategories || [];
 
   const scrollToDirectory = () => document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth' });
 

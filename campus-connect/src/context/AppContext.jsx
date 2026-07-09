@@ -44,7 +44,8 @@ export function AppProvider({ children }) {
           { data: staff }, { data: staffCategories },
           { data: classrooms }, { data: announcements }, 
           { data: academicCalendar }, { data: examSchedule }, { data: quickLinks },
-          { data: clubMemberships } // NEW
+          { data: clubMemberships },
+          { data: academicData }, { data: visitorGuideCategories }
         ] = await Promise.all([
           supabase.from('places').select('*'),
           supabase.from('place_categories').select('*'),
@@ -60,7 +61,9 @@ export function AppProvider({ children }) {
           supabase.from('academic_calendar').select('*'),
           supabase.from('exam_schedule').select('*'),
           supabase.from('quick_links').select('*'),
-          supabase.from('club_memberships').select('*') // NEW
+          supabase.from('club_memberships').select('*'),
+          supabase.from('academic_data').select('*'),
+          supabase.from('visitor_guide_categories').select('*')
         ]);
 
         // Reconstruct the nested arrays so they match the expected format
@@ -96,7 +99,9 @@ export function AppProvider({ children }) {
           announcements: announcements || [],
           academicCalendar: academicCalendar || [],
           examSchedule: examSchedule || [],
-          quickLinks: quickLinks || []
+          quickLinks: quickLinks || [],
+          academicData: academicData || [],
+          visitorGuideCategories: visitorGuideCategories || []
         };
 
         setLiveData(remoteData);

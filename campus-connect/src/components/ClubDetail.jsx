@@ -142,7 +142,7 @@ export default function ClubDetail({ club, onClose }) {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-col-reverse md:flex-row gap-6">
             <div className="flex-1 space-y-6">
               {/* About */}
               <div>

@@ -30,10 +30,10 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex-1 flex justify-start">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <img src="/images/logo.png" alt="Campus Connect Logo" className="w-10 h-10 rounded-md object-contain border-[1.5px] border-[var(--color-border)] shadow-sm" style={{ background: 'var(--color-card)' }} />
+              <img src="/images/logo.png" alt="Campus Grid Logo" className="w-10 h-10 rounded-md object-contain border-[1.5px] border-[var(--color-border)] shadow-sm" style={{ background: 'var(--color-card)' }} />
               <div className="leading-none">
                 <div className="text-lg font-extrabold tracking-tight" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em', color: 'var(--color-text)' }}>Campus</div>
-                <div className="text-[10px] font-semibold tracking-[1.5px] uppercase" style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Connect</div>
+                <div className="text-[10px] font-semibold tracking-[1.5px] uppercase" style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Grid</div>
               </div>
             </Link>
           </div>

@@ -26,7 +26,7 @@ export default function AI() {
     try {
       // Build a basic context string from Supabase data so the AI knows about the campus
       const campusContext = `
-You are a helpful, friendly AI assistant for Chitkara University's Campus Connect app.
+You are a helpful, friendly AI assistant for Chitkara University's Campus Grid app.
 You help students find clubs, events, and campus facilities.
 Here is live context from the database:
 - Clubs: ${data.clubs?.map(c => c.name).join(', ') || 'None'}

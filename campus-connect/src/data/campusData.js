@@ -1,4 +1,4 @@
-/* ===== Campus Connect — All Mock Data ===== */
+/* ===== Campus Grid — All Mock Data ===== */
 
 export const campusData = {
   /* ==================== PLACES ==================== */

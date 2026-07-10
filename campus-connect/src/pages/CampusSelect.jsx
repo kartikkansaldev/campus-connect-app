@@ -18,7 +18,7 @@ export default function CampusSelect() {
           Select Your Campus
         </h1>
         <p className="text-[var(--color-text-secondary)] font-medium mb-10 text-lg">
-          Welcome to Campus Connect. Choose your university to get started.
+          Welcome to Campus Grid. Choose your university to get started.
         </p>
 
         <div className="space-y-4">

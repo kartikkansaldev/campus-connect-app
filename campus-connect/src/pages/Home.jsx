@@ -512,7 +512,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="text-center py-6 border-t" style={{ borderColor: 'var(--color-border-light)' }}>
         <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.3px' }}>
-          Campus Connect | Chitkara University © 2026 | support@campusconnect.edu
+          Campus Grid | Chitkara University © 2026 | support@campusgrid.edu
         </p>
       </footer>
     </div>

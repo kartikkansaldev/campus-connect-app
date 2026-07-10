@@ -56,7 +56,7 @@ export default function Login() {
           <div className="w-16 h-16 bg-[var(--color-accent)] rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-[4px_4px_0_0_var(--color-border)] border-2 border-[var(--color-border)]">
             <span className="text-3xl text-white font-black">CC</span>
           </div>
-          <h1 className="text-3xl font-black font-heading mb-2 text-[var(--color-text)]">Campus Connect</h1>
+          <h1 className="text-3xl font-black font-heading mb-2 text-[var(--color-text)]">Campus Grid</h1>
           <p className="text-[var(--color-text-secondary)] font-medium">Join your campus community today.</p>
         </div>
 

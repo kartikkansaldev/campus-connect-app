@@ -225,8 +225,8 @@ export default function ClubDetail({ club, onClose }) {
               <div className="neo-card-static p-4 bg-white space-y-4">
                 <button 
                   onClick={handleJoin}
-                  disabled={isBlocked || currentUser?.role !== 'student'}
-                  className={`w-full py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all border-2 border-[var(--color-border)] 
+                  disabled={isBlocked}
+                  className={`w-full py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all border-2 border-[var(--color-border)] cursor-pointer
                     ${isAccepted ? 'bg-[var(--color-green)] text-white shadow-none translate-y-[2px] translate-x-[2px]' 
                     : isPending ? 'bg-[var(--color-orange)] text-white shadow-none translate-y-[2px] translate-x-[2px]'
                     : isBlocked ? 'bg-[var(--color-card)] text-[var(--color-text-muted)] opacity-50 cursor-not-allowed'

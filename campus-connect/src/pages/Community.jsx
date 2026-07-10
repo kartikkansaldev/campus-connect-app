@@ -638,14 +638,14 @@ export default function Community() {
   });
 
   return (
-    <div className="animate-in flex flex-col md:flex-row gap-8 md:h-[calc(100vh-6rem)]">
+    <div className="animate-in flex flex-col md:flex-row gap-6 md:gap-8 h-[calc(100vh-7rem)] md:h-[calc(100vh-6rem)]">
       <style>{`
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       {/* Sidebar Navigation */}
-      <div className="w-full md:w-[260px] shrink-0 md:h-full overflow-y-auto hide-scroll pb-2 md:pb-10">
+      <div className="w-full md:w-[260px] shrink-0 h-auto md:h-full overflow-y-visible md:overflow-y-auto hide-scroll pb-2 md:pb-10 min-w-0">
         <h1 className="text-3xl font-extrabold font-heading mb-6">Community</h1>
 
         {/* Search Bar */}
@@ -697,7 +697,7 @@ export default function Community() {
       </div>
 
       {/* Main Feed */}
-      <div className="flex-1 space-y-5 md:h-full overflow-y-auto hide-scroll pb-20 pr-1">
+      <div className="flex-1 space-y-5 h-full overflow-y-auto hide-scroll pb-20 pr-1 min-h-0">
         
         {/* Post Composer */}
         {!showPostForm ? (

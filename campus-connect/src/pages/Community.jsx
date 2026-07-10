@@ -17,7 +17,7 @@ function timeAgo(dateStr) {
 
 // Fire a browser push notification
 function fireNotification(title, body) {
-  if (Notification.permission === 'granted') {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     new Notification(title, {
       body,
       icon: '/favicon.svg',
@@ -557,9 +557,9 @@ function PostCard({ post, currentUser, onOpenChat }) {
 }
 
 function useNotificationPermission() {
-  const [permission, setPermission] = useState(Notification.permission);
+  const [permission, setPermission] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'default');
   useEffect(() => {
-    if (Notification.permission === 'default') {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
       const timer = setTimeout(async () => {
         const result = await Notification.requestPermission();
         setPermission(result);

@@ -1,6 +1,10 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function BlueprintBackground() {
+  const location = useLocation();
+  const path = location.pathname;
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
       
@@ -22,11 +26,45 @@ export default function BlueprintBackground() {
           <pattern id="gridMajor" width="140" height="140" patternUnits="userSpaceOnUse">
             <path d="M 140 0 L 0 0 0 140" fill="none" stroke="#8C8578" strokeWidth="1.5" opacity="0.9" />
           </pattern>
+
+          <pattern id="diagonalLeft" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+            <path d="M 0 0 L 0 28" fill="none" stroke="#B0A898" strokeWidth="1.2" opacity="0.9" />
+          </pattern>
+
+          <pattern id="diagonalRight" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M 0 0 L 0 28" fill="none" stroke="#B0A898" strokeWidth="1.2" opacity="0.9" />
+          </pattern>
+
+          <pattern id="verticalStrips" width="28" height="28" patternUnits="userSpaceOnUse">
+            <path d="M 14 0 L 14 28" fill="none" stroke="#B0A898" strokeWidth="1.2" opacity="0.9" />
+          </pattern>
+
+          <pattern id="horizontalStrips" width="28" height="28" patternUnits="userSpaceOnUse">
+            <path d="M 0 14 L 28 14" fill="none" stroke="#B0A898" strokeWidth="1.2" opacity="0.9" />
+          </pattern>
+
+          <pattern id="wavyVertical" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 Q 32 10 20 20 T 20 40" fill="none" stroke="#B0A898" strokeWidth="1.2" opacity="0.9" />
+          </pattern>
         </defs>
 
-        {/* Primary and Minor Blueprint Grid */}
-        <rect width="100%" height="100%" fill="url(#gridMinor)" />
-        <rect width="100%" height="100%" fill="url(#gridMajor)" />
+        {/* Dynamic Background Pattern based on Route */}
+        {path === '/explore' ? (
+          <rect width="100%" height="100%" fill="url(#diagonalLeft)" />
+        ) : path === '/campus-life' ? (
+          <rect width="100%" height="100%" fill="url(#verticalStrips)" />
+        ) : path === '/community' ? (
+          <rect width="100%" height="100%" fill="url(#diagonalRight)" />
+        ) : path === '/academics' ? (
+          <rect width="100%" height="100%" fill="url(#horizontalStrips)" />
+        ) : path === '/visitor-guide' ? (
+          <rect width="100%" height="100%" fill="url(#wavyVertical)" />
+        ) : (
+          <>
+            <rect width="100%" height="100%" fill="url(#gridMinor)" />
+            <rect width="100%" height="100%" fill="url(#gridMajor)" />
+          </>
+        )}
       </svg>
     </div>
   );
